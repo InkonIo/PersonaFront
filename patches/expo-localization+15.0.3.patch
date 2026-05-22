@@ -1,0 +1,550 @@
+diff --git a/node_modules/expo-localization/android/.gradle/8.9/checksums/checksums.lock b/node_modules/expo-localization/android/.gradle/8.9/checksums/checksums.lock
+new file mode 100644
+index 0000000..f120503
+Binary files /dev/null and b/node_modules/expo-localization/android/.gradle/8.9/checksums/checksums.lock differ
+diff --git a/node_modules/expo-localization/android/.gradle/8.9/dependencies-accessors/gc.properties b/node_modules/expo-localization/android/.gradle/8.9/dependencies-accessors/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-localization/android/.gradle/8.9/fileChanges/last-build.bin b/node_modules/expo-localization/android/.gradle/8.9/fileChanges/last-build.bin
+new file mode 100644
+index 0000000..f76dd23
+Binary files /dev/null and b/node_modules/expo-localization/android/.gradle/8.9/fileChanges/last-build.bin differ
+diff --git a/node_modules/expo-localization/android/.gradle/8.9/fileHashes/fileHashes.lock b/node_modules/expo-localization/android/.gradle/8.9/fileHashes/fileHashes.lock
+new file mode 100644
+index 0000000..ece6af5
+Binary files /dev/null and b/node_modules/expo-localization/android/.gradle/8.9/fileHashes/fileHashes.lock differ
+diff --git a/node_modules/expo-localization/android/.gradle/8.9/gc.properties b/node_modules/expo-localization/android/.gradle/8.9/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-localization/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock b/node_modules/expo-localization/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+new file mode 100644
+index 0000000..3060c38
+Binary files /dev/null and b/node_modules/expo-localization/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock differ
+diff --git a/node_modules/expo-localization/android/.gradle/buildOutputCleanup/cache.properties b/node_modules/expo-localization/android/.gradle/buildOutputCleanup/cache.properties
+new file mode 100644
+index 0000000..24efb5a
+--- /dev/null
++++ b/node_modules/expo-localization/android/.gradle/buildOutputCleanup/cache.properties
+@@ -0,0 +1,2 @@
++#Wed Apr 29 21:10:24 QYZT 2026
++gradle.version=8.9
+diff --git a/node_modules/expo-localization/android/.gradle/vcs-1/gc.properties b/node_modules/expo-localization/android/.gradle/vcs-1/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-localization/android/.project b/node_modules/expo-localization/android/.project
+new file mode 100644
+index 0000000..99b1050
+--- /dev/null
++++ b/node_modules/expo-localization/android/.project
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>expo-localization</name>
++	<comment>Project expo-localization created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.jdt.core.javabuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.jdt.core.javanature</nature>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1777305274498</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
+diff --git a/node_modules/expo-localization/android/bin/.gradle/8.9/checksums/checksums.lock b/node_modules/expo-localization/android/bin/.gradle/8.9/checksums/checksums.lock
+new file mode 100644
+index 0000000..f120503
+Binary files /dev/null and b/node_modules/expo-localization/android/bin/.gradle/8.9/checksums/checksums.lock differ
+diff --git a/node_modules/expo-localization/android/bin/.gradle/8.9/dependencies-accessors/gc.properties b/node_modules/expo-localization/android/bin/.gradle/8.9/dependencies-accessors/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-localization/android/bin/.gradle/8.9/fileChanges/last-build.bin b/node_modules/expo-localization/android/bin/.gradle/8.9/fileChanges/last-build.bin
+new file mode 100644
+index 0000000..f76dd23
+Binary files /dev/null and b/node_modules/expo-localization/android/bin/.gradle/8.9/fileChanges/last-build.bin differ
+diff --git a/node_modules/expo-localization/android/bin/.gradle/8.9/fileHashes/fileHashes.lock b/node_modules/expo-localization/android/bin/.gradle/8.9/fileHashes/fileHashes.lock
+new file mode 100644
+index 0000000..ece6af5
+Binary files /dev/null and b/node_modules/expo-localization/android/bin/.gradle/8.9/fileHashes/fileHashes.lock differ
+diff --git a/node_modules/expo-localization/android/bin/.gradle/8.9/gc.properties b/node_modules/expo-localization/android/bin/.gradle/8.9/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-localization/android/bin/.gradle/buildOutputCleanup/buildOutputCleanup.lock b/node_modules/expo-localization/android/bin/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+new file mode 100644
+index 0000000..3060c38
+Binary files /dev/null and b/node_modules/expo-localization/android/bin/.gradle/buildOutputCleanup/buildOutputCleanup.lock differ
+diff --git a/node_modules/expo-localization/android/bin/.gradle/buildOutputCleanup/cache.properties b/node_modules/expo-localization/android/bin/.gradle/buildOutputCleanup/cache.properties
+new file mode 100644
+index 0000000..24efb5a
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/.gradle/buildOutputCleanup/cache.properties
+@@ -0,0 +1,2 @@
++#Wed Apr 29 21:10:24 QYZT 2026
++gradle.version=8.9
+diff --git a/node_modules/expo-localization/android/bin/.gradle/vcs-1/gc.properties b/node_modules/expo-localization/android/bin/.gradle/vcs-1/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-localization/android/bin/.project b/node_modules/expo-localization/android/bin/.project
+new file mode 100644
+index 0000000..99b1050
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/.project
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>expo-localization</name>
++	<comment>Project expo-localization created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.jdt.core.javabuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.jdt.core.javanature</nature>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1777305274498</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
+diff --git a/node_modules/expo-localization/android/bin/build.gradle b/node_modules/expo-localization/android/bin/build.gradle
+new file mode 100644
+index 0000000..e7b568d
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/build.gradle
+@@ -0,0 +1,23 @@
++apply plugin: 'com.android.library'
++
++group = 'host.exp.exponent'
++version = '15.0.3'
++
++def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
++apply from: expoModulesCorePlugin
++applyKotlinExpoModulesCorePlugin()
++useCoreDependencies()
++useDefaultAndroidSdkVersions()
++useExpoPublishing()
++
++android {
++  namespace "expo.modules.localization"
++  defaultConfig {
++    versionCode 22
++    versionName "15.0.3"
++  }
++}
++
++dependencies {
++  implementation "androidx.core:core-ktx:1.6.0"
++}
+diff --git a/node_modules/expo-localization/android/bin/src/main/AndroidManifest.xml b/node_modules/expo-localization/android/bin/src/main/AndroidManifest.xml
+new file mode 100644
+index 0000000..c4e83de
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/src/main/AndroidManifest.xml
+@@ -0,0 +1,3 @@
++<manifest>
++
++</manifest>
+diff --git a/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationModule.kt b/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationModule.kt
+new file mode 100644
+index 0000000..cccbe1a
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationModule.kt
+@@ -0,0 +1,238 @@
++package expo.modules.localization
++
++import android.content.Context
++import android.icu.util.LocaleData
++import android.icu.util.ULocale
++import android.os.Build.VERSION
++import android.os.Build.VERSION_CODES
++import android.os.Bundle
++import android.text.TextUtils
++import android.text.TextUtils.getLayoutDirectionFromLocale
++import android.text.format.DateFormat
++import android.util.LayoutDirection
++import android.util.Log
++import android.view.View
++import androidx.core.os.LocaleListCompat
++import androidx.core.os.bundleOf
++import expo.modules.kotlin.modules.Module
++import expo.modules.kotlin.modules.ModuleDefinition
++import java.text.DecimalFormatSymbols
++import java.util.*
++
++// must be kept in sync with https://github.com/facebook/react-native/blob/main/ReactAndroid/src/main/java/com/facebook/react/modules/i18nmanager/I18nUtil.java
++private const val SHARED_PREFS_NAME = "com.facebook.react.modules.i18nmanager.I18nUtil"
++private const val KEY_FOR_PREFS_ALLOWRTL = "RCTI18nUtil_allowRTL"
++private const val KEY_FOR_PREFS_FORCERTL = "RCTI18nUtil_forceRTL"
++private const val LOCALE_SETTINGS_CHANGED = "onLocaleSettingsChanged"
++private const val CALENDAR_SETTINGS_CHANGED = "onCalendarSettingsChanged"
++
++class LocalizationModule : Module() {
++  private var observer: () -> Unit = {}
++
++  override fun definition() = ModuleDefinition {
++    Name("ExpoLocalization")
++
++    Constants {
++      bundledConstants.toShallowMap()
++    }
++
++    AsyncFunction<Bundle>("getLocalizationAsync") {
++      return@AsyncFunction bundledConstants
++    }
++
++    Function("getLocales") {
++      return@Function getPreferredLocales()
++    }
++
++    Function("getCalendars") {
++      return@Function getCalendars()
++    }
++
++    Events(LOCALE_SETTINGS_CHANGED, CALENDAR_SETTINGS_CHANGED)
++
++    OnCreate {
++      appContext.reactContext?.let {
++        setRTLFromStringResources(it)
++      }
++      observer = {
++        this@LocalizationModule.sendEvent(LOCALE_SETTINGS_CHANGED)
++        this@LocalizationModule.sendEvent(CALENDAR_SETTINGS_CHANGED)
++      }
++      Notifier.registerObserver(observer)
++    }
++
++    OnDestroy {
++      Notifier.deregisterObserver(observer)
++    }
++  }
++
++  private fun setRTLFromStringResources(context: Context) {
++    // These keys are used by React Native here: https://github.com/facebook/react-native/blob/main/React/Modules/RCTI18nUtil.m
++    // We set them before React loads to ensure it gets rendered correctly the first time the app is opened.
++    val supportsRTL = appContext.reactContext?.getString(R.string.ExpoLocalization_supportsRTL)
++    val forcesRTL = appContext.reactContext?.getString(R.string.ExpoLocalization_forcesRTL)
++
++    if (forcesRTL == "true") {
++      context
++        .getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
++        .edit()
++        .also {
++          it.putBoolean(KEY_FOR_PREFS_ALLOWRTL, true)
++          it.putBoolean(KEY_FOR_PREFS_FORCERTL, true)
++          it.apply()
++        }
++    } else {
++      if (supportsRTL == "true" || supportsRTL == "false") {
++        context
++          .getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
++          .edit()
++          .also {
++            it.putBoolean(KEY_FOR_PREFS_ALLOWRTL, supportsRTL == "true")
++            if (forcesRTL == "false") {
++              it.putBoolean(KEY_FOR_PREFS_FORCERTL, false)
++            }
++            it.apply()
++          }
++      }
++    }
++  }
++
++  // TODO: Bacon: add set language
++  private val bundledConstants: Bundle
++    get() {
++      val locale = Locale.getDefault()
++      val localeNames = getLocaleNames(locales)
++      val isRTL = TextUtils.getLayoutDirectionFromLocale(locale) == View.LAYOUT_DIRECTION_RTL
++      val region = getRegionCode(locale)
++      val symbols = DecimalFormatSymbols(locale)
++      return bundleOf(
++        "currency" to getCurrencyCode(locale),
++        "decimalSeparator" to symbols.decimalSeparator.toString(),
++        "digitGroupingSeparator" to symbols.groupingSeparator.toString(),
++        "isoCurrencyCodes" to ISOCurrencyCodes,
++        "isMetric" to !USES_IMPERIAL.contains(region),
++        "isRTL" to isRTL,
++        // TODO: (barthap) this can throw IndexOutOfBounds exception - handle this properly
++        "locale" to localeNames[0],
++        "locales" to localeNames,
++        "region" to region,
++        "timezone" to TimeZone.getDefault().id
++      )
++    }
++
++  private val locales: List<Locale>
++    get() {
++      val context = appContext.reactContext ?: return emptyList()
++      val configuration = context.resources.configuration
++      return if (VERSION.SDK_INT > VERSION_CODES.N) {
++        val locales = ArrayList<Locale>()
++        for (i in 0 until configuration.locales.size()) {
++          locales.add(configuration.locales[i])
++        }
++        locales
++      } else {
++        @Suppress("DEPRECATION")
++        listOf(configuration.locale)
++      }
++    }
++
++  private fun getMeasurementSystem(locale: Locale): String? {
++    return if (VERSION.SDK_INT >= VERSION_CODES.P) {
++      when (LocaleData.getMeasurementSystem(ULocale.forLocale(locale))) {
++        LocaleData.MeasurementSystem.SI -> "metric"
++        LocaleData.MeasurementSystem.UK -> "uk"
++        LocaleData.MeasurementSystem.US -> "us"
++        else -> "metric"
++      }
++    } else {
++      if (getRegionCode(locale).equals("uk")) {
++        "uk"
++      } else if (USES_IMPERIAL.contains(getRegionCode(locale))) {
++        "us"
++      } else {
++        "metric"
++      }
++    }
++  }
++
++  private fun getCurrencyProperties(locale: Locale): Map<String, Any?> {
++    return try {
++      mapOf(
++        "currencyCode" to Currency.getInstance(locale).currencyCode,
++        // currency symbol can be localized to display locale (1st on the list) or to the locale for the currency (as done here).
++        "currencySymbol" to Currency.getInstance(locale).getSymbol(locale)
++      )
++    } catch (e: Exception) {
++      mapOf(
++        "currencyCode" to null,
++        "currencySymbol" to null
++      )
++    }
++  }
++
++  private fun getPreferredLocales(): List<Map<String, Any?>> {
++    val locales = mutableListOf<Map<String, Any?>>()
++    val localeList: LocaleListCompat = LocaleListCompat.getDefault()
++    for (i in 0 until localeList.size()) {
++      try {
++        val locale: Locale = localeList.get(i) ?: continue
++        val decimalFormat = DecimalFormatSymbols.getInstance(locale)
++        locales.add(
++          mapOf(
++            "languageTag" to locale.toLanguageTag(),
++            "regionCode" to getRegionCode(locale),
++            "textDirection" to if (getLayoutDirectionFromLocale(locale) == LayoutDirection.RTL) "rtl" else "ltr",
++            "languageCode" to locale.language,
++
++            // the following two properties should be deprecated once Intl makes it way to RN, instead use toLocaleString
++            "decimalSeparator" to decimalFormat.decimalSeparator.toString(),
++            "digitGroupingSeparator" to decimalFormat.groupingSeparator.toString(),
++
++            "measurementSystem" to getMeasurementSystem(locale),
++            "temperatureUnit" to getTemperatureUnit(locale)
++          ) + getCurrencyProperties(locale)
++        )
++      } catch (e: Exception) {
++        // warn about the problematic locale
++        // we don't append the problematic locale to the list
++        Log.w("expo-localization", "Failed to get locale for index $i", e)
++      }
++    }
++    return locales
++  }
++
++  private fun uses24HourClock(): Boolean {
++    if (appContext.reactContext == null) return false
++    return DateFormat.is24HourFormat(appContext.reactContext)
++  }
++
++  private fun getCalendarType(): String {
++    return if (VERSION.SDK_INT >= VERSION_CODES.O) {
++      Calendar.getInstance().calendarType.toString()
++    } else {
++      "gregory"
++    }
++  }
++
++  private fun getCalendars(): List<Map<String, Any?>> {
++    return listOf(
++      mapOf(
++        "calendar" to getCalendarType(),
++        "uses24hourClock" to uses24HourClock(), // we ideally would use hourCycle (one of h12, h23, h11, h24) instead, but not sure how to get it on android and ios
++        "firstWeekday" to Calendar.getInstance().firstDayOfWeek,
++        "timeZone" to Calendar.getInstance().timeZone.id
++      )
++    )
++  }
++}
++
++/**
++ * Creates a shallow [Map] from the [Bundle]. Does not traverse nested arrays and bundles.
++ */
++private fun Bundle.toShallowMap(): Map<String, Any?> {
++  val map = HashMap<String, Any?>()
++  for (key in this.keySet()) {
++    map[key] = this[key]
++  }
++  return map
++}
+diff --git a/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationPackage.kt b/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationPackage.kt
+new file mode 100644
+index 0000000..4d66d8c
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationPackage.kt
+@@ -0,0 +1,35 @@
++package expo.modules.localization
++
++import android.content.Context
++import android.content.res.Configuration
++import expo.modules.core.interfaces.ApplicationLifecycleListener
++import expo.modules.core.interfaces.Package
++
++object Notifier {
++  private val observers = mutableListOf<() -> Unit>()
++
++  fun registerObserver(observer: () -> Unit) {
++    observers.add(observer)
++  }
++
++  fun deregisterObserver(observer: () -> Unit) {
++    observers.remove(observer)
++  }
++
++  fun onConfigurationChanged() {
++    // Notify all observers
++    observers.forEach { it() }
++  }
++}
++
++// TODO: Move to new listener API once it's available
++class LocalizationPackage : Package {
++  override fun createApplicationLifecycleListeners(context: Context?): List<ApplicationLifecycleListener> {
++    return listOf(object : ApplicationLifecycleListener {
++      override fun onConfigurationChanged(newConfig: Configuration?) {
++        super.onConfigurationChanged(newConfig)
++        Notifier.onConfigurationChanged()
++      }
++    })
++  }
++}
+diff --git a/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationUtils.kt b/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationUtils.kt
+new file mode 100644
+index 0000000..86e2f3a
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/src/main/java/expo/modules/localization/LocalizationUtils.kt
+@@ -0,0 +1,49 @@
++package expo.modules.localization
++
++import android.text.TextUtils
++import java.util.*
++
++val USES_IMPERIAL = listOf("US", "LR", "MM")
++
++// https://wisevoter.com/country-rankings/countries-that-use-fahrenheit/
++val USES_FAHRENHEIT = listOf("AG", "BZ", "VG", "FM", "MH", "MS", "KN", "BS", "CY", "TC", "US", "LR", "PW", "KY")
++
++val ISOCurrencyCodes: Array<String> by lazy {
++  Currency.getAvailableCurrencies().map { it.currencyCode as String }.toTypedArray()
++}
++
++fun getLocaleNames(locales: List<Locale>) = locales.map { it.toLanguageTag() }.toTypedArray()
++
++fun getCountryCode(locale: Locale): String? {
++  return runCatching {
++    val country = locale.country
++    if (TextUtils.isEmpty(country)) null else country
++  }.getOrNull()
++}
++
++fun getSystemProperty(key: String): String {
++  return runCatching {
++    val systemProperties = Class.forName("android.os.SystemProperties")
++    val get = systemProperties.getMethod("get", String::class.java)
++    get.invoke(systemProperties, key) as String
++  }.getOrNull() ?: ""
++}
++
++fun getCurrencyCode(locale: Locale): String? {
++  return runCatching {
++    val currency = Currency.getInstance(locale)
++    currency?.currencyCode
++  }.getOrNull()
++}
++
++fun getRegionCode(locale: Locale): String? {
++  val miuiRegion = getSystemProperty("ro.miui.region")
++  return miuiRegion.ifEmpty {
++    getCountryCode(locale)
++  }
++}
++
++fun getTemperatureUnit(locale: Locale): String? {
++  val countryCode = getRegionCode(locale) ?: return null
++  return if (USES_FAHRENHEIT.contains(countryCode)) "fahrenheit" else "celsius"
++}
+diff --git a/node_modules/expo-localization/android/bin/src/main/res/values/strings.xml b/node_modules/expo-localization/android/bin/src/main/res/values/strings.xml
+new file mode 100644
+index 0000000..36b5e5b
+--- /dev/null
++++ b/node_modules/expo-localization/android/bin/src/main/res/values/strings.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++  <string name="ExpoLocalization_supportsRTL" translatable="false">unset</string>
++  <string name="ExpoLocalization_forcesRTL" translatable="false">unset</string>
++</resources>
+diff --git a/node_modules/expo-localization/ios/LocalizationModule.swift b/node_modules/expo-localization/ios/LocalizationModule.swift
+index 17c9cb7..9763244 100644
+--- a/node_modules/expo-localization/ios/LocalizationModule.swift
++++ b/node_modules/expo-localization/ios/LocalizationModule.swift
+@@ -123,7 +123,9 @@ public class LocalizationModule: Module {
+       return "roc"
+     case .iso8601:
+       return "iso8601"
+-    }
++    default:
++      return "gregory"
++}
+   }
+ 
+   static func getMeasurementSystemForLocale(_ locale: Locale) -> String {

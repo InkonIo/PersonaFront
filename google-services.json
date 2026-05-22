@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1013169922009",
+    "project_id": "personapushnotification",
+    "storage_bucket": "personapushnotification.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1013169922009:android:c8ec377a7200eb4cff43c8",
+        "android_client_info": {
+          "package_name": "com.romish.persona"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDudhltXEcQVoY04VpILBj0H8IktVNln3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
