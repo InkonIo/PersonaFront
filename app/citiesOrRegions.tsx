@@ -52,6 +52,8 @@ const CityList = () => {
     const sortedRegions = useAppSelector((state) => selectSortedRegions(state, lang));
     const sortedCities = useAppSelector((state) => selectSortedCities(state, lang));
 
+    const ALL_REGIONS_ID = -1;
+
     // ─── ФИКС: при входе на экран с чекбоксами синхронизируем selectedCity ──
     // с нужным источником (профиль или поисковые фильтры), не даём утечь данным
     useEffect(() => {
@@ -70,20 +72,34 @@ const CityList = () => {
     // ────────────────────────────────────────────────────────────────────────
 
     const filteredItems: RegionOrCity[] = showCheckbox
-        ? sortedCities.filter((city: RegionOrCity) =>
-            getLocalizedName(city).toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : sortedRegions.filter((region: RegionOrCity) =>
+    ? sortedCities.filter((city: RegionOrCity) =>
+        getLocalizedName(city).toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [
+        { id: ALL_REGIONS_ID, name: t('common.allRegions'), code: 'ALL' },
+        ...sortedRegions.filter((region: RegionOrCity) =>
             getLocalizedName(region).toLowerCase().includes(searchQuery.toLowerCase())
-          );
+          )
+      ];
 
     const toggleCitySelection = async (id: number) => {
-        if (!showCheckbox) {
-            await goToRegionWithCheckbox(id);
-            return;
-        }
-        dispatch(setSelectedCity(id));
-    };
+    if (!showCheckbox) {
+        if (id === ALL_REGIONS_ID) {
+    const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
+    if (fromWhere === "REGISTRATION") {
+        dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+        navigation.navigate("signup");
+    } else {
+        dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
+        navigation.navigate("search");
+    }
+    return;
+}
+        await goToRegionWithCheckbox(id);
+        return;
+    }
+    dispatch(setSelectedCity(id));
+};
 
     const goToRegionWithCheckbox = async (regionId: number) => {
         await dispatch(getRegion(regionId));
@@ -91,15 +107,15 @@ const CityList = () => {
     };
 
     const renderCity = ({ item }: { item: RegionOrCity }) => (
-        <TouchableOpacity onPress={() => toggleCitySelection(item.id)} style={styles.cityContainer}>
-            <Text style={[textStyles.body16Light]}>{getLocalizedName(item)}</Text>
-            {showCheckbox ? (
-                <Checkbox value={selectedCity === item.id} onValueChange={() => toggleCitySelection(item.id)} />
-            ) : (
-                <InputIcon as={ChevronRightIcon} />
-            )}
-        </TouchableOpacity>
-    );
+    <TouchableOpacity onPress={() => toggleCitySelection(item.id)} style={styles.cityContainer}>
+        <Text style={[textStyles.body16Light]}>{getLocalizedName(item)}</Text>
+        {showCheckbox ? (
+            <Checkbox value={selectedCity === item.id} onValueChange={() => toggleCitySelection(item.id)} />
+        ) : (
+            item.id !== ALL_REGIONS_ID && <InputIcon as={ChevronRightIcon} />
+        )}
+    </TouchableOpacity>
+);
 
     useEffect(() => {
         navigation.setOptions({

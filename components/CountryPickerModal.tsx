@@ -7,11 +7,9 @@ import {
     TouchableOpacity,
     Text,
     StyleSheet,
-    KeyboardAvoidingView,
-    TouchableWithoutFeedback,
-    Keyboard,
+    SafeAreaView,
     Platform,
-    Dimensions,
+    StatusBar,
 } from 'react-native';
 import {
     ChevronDownIcon,
@@ -23,15 +21,14 @@ import {
 import { useTranslation } from 'react-i18next';
 import { getLocalizedName } from '@/store/slices/dictionarySlice';
 import Colors from '@/constants/Colors';
-
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SHEET_HEIGHT = SCREEN_HEIGHT * 0.6;
+import { XIcon, ArrowLeftIcon, SearchIcon } from 'lucide-react-native';
 
 interface CountryPickerModalProps {
     countries: any[];
     selectedCountry: any;
     lang: string;
     onSelect: (id: string) => void;
+    onClear?: () => void;
     placeholder?: string;
 }
 
@@ -40,6 +37,7 @@ const CountryPickerModal = ({
     selectedCountry,
     lang,
     onSelect,
+    onClear,
     placeholder,
 }: CountryPickerModalProps) => {
     const { t } = useTranslation();
@@ -61,12 +59,10 @@ const CountryPickerModal = ({
     const handleClose = () => {
         setVisible(false);
         setQuery('');
-        Keyboard.dismiss();
     };
 
     return (
         <>
-            {/* Триггер */}
             <TouchableOpacity onPress={() => setVisible(true)} activeOpacity={0.7}>
                 <Input
                     variant="rounded"
@@ -81,139 +77,153 @@ const CountryPickerModal = ({
                         editable={false}
                     />
                     <InputSlot pr="$3">
-                        <InputIcon as={ChevronDownIcon} />
+                        {selectedCountry && onClear ? (
+                            <TouchableOpacity onPress={onClear}>
+                                <InputIcon as={XIcon} />
+                            </TouchableOpacity>
+                        ) : (
+                            <InputIcon as={ChevronDownIcon} />
+                        )}
                     </InputSlot>
                 </Input>
             </TouchableOpacity>
 
-            {/* Модалка */}
             <Modal
                 visible={visible}
                 animationType="slide"
-                transparent={true}
+                transparent={false}
                 onRequestClose={handleClose}
             >
-                {/*
-                    Внешний TouchableWithoutFeedback закрывает модалку
-                    при тапе по тёмному backdrop-у.
-                */}
-                <TouchableWithoutFeedback onPress={handleClose}>
-                    <View style={styles.overlay}>
-                        {/*
-                            Внутренний TouchableWithoutFeedback останавливает
-                            всплытие события — тап по шторке не уходит на handleClose.
-                            Keyboard.dismiss НЕ вызываем здесь, чтобы клавиатура
-                            оставалась открытой пока пользователь тыкает по списку.
-                        */}
-                        <TouchableWithoutFeedback onPress={() => {}}>
-                            <KeyboardAvoidingView
-                                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                                style={[styles.sheet, { height: SHEET_HEIGHT }]}
-                            >
-                                {/* Ручка */}
-                                <View style={styles.handle} />
+                <SafeAreaView style={styles.container}>
+                    <StatusBar barStyle="dark-content" />
 
-                                {/* Поле поиска */}
-                                <View style={styles.searchContainer}>
-                                    <TextInput
-                                        placeholder={t('signup.placeholder')}
-                                        value={query}
-                                        onChangeText={setQuery}
-                                        style={styles.searchInput}
-                                        placeholderTextColor={Colors.grayDark}
-                                        autoFocus={true}
-                                        returnKeyType="search"
-                                    />
-                                </View>
-
-                                {/* Список */}
-                                <FlatList
-                                    data={filtered}
-                                    keyExtractor={(item) => String(item.id)}
-                                    style={styles.list}
-                                    contentContainerStyle={styles.listContent}
-                                    /*
-                                        "handled" — тап по TouchableOpacity
-                                        обрабатывается сразу, без предварительного
-                                        закрытия клавиатуры.
-                                    */
-                                    keyboardShouldPersistTaps="always"
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity
-                                            onPress={() => handleSelect(String(item.id))}
-                                            activeOpacity={0.6}
-                                            style={styles.item}
-                                        >
-                                            <Text style={styles.itemText}>
-                                                {getLocalizedName(item, lang)}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    ListEmptyComponent={
-                                        <View style={styles.emptyContainer}>
-                                            <Text style={styles.emptyText}>
-                                                {t('signup.noResults') ?? 'Ничего не найдено'}
-                                            </Text>
-                                        </View>
-                                    }
-                                />
-                            </KeyboardAvoidingView>
-                        </TouchableWithoutFeedback>
+                    {/* Хедер */}
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={handleClose} style={styles.backBtn}>
+                            <ArrowLeftIcon size={22} color="#000" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>{t('signup.country')}</Text>
+                        <View style={{ width: 32 }} />
                     </View>
-                </TouchableWithoutFeedback>
+
+                    {/* Поиск */}
+                    <View style={styles.searchContainer}>
+                        <SearchIcon size={16} color={Colors.grayDark} />
+                        <TextInput
+                            placeholder={t('signup.placeholder')}
+                            value={query}
+                            onChangeText={setQuery}
+                            style={styles.searchInput}
+                            placeholderTextColor={Colors.grayDark}
+                            autoFocus={true}
+                            returnKeyType="search"
+                        />
+                        {query.length > 0 && (
+                            <TouchableOpacity onPress={() => setQuery('')}>
+                                <XIcon size={16} color={Colors.grayDark} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    {/* Список */}
+                    <FlatList
+                        data={filtered}
+                        keyExtractor={(item) => String(item.id)}
+                        keyboardShouldPersistTaps="always"
+                        renderItem={({ item }) => {
+                            const isSelected = selectedCountry?.id === item.id;
+                            return (
+                                <TouchableOpacity
+                                    onPress={() => handleSelect(String(item.id))}
+                                    activeOpacity={0.6}
+                                    style={[styles.item, isSelected && styles.itemSelected]}
+                                >
+                                    <Text style={[styles.itemText, isSelected && styles.itemTextSelected]}>
+                                        {getLocalizedName(item, lang)}
+                                    </Text>
+                                    {isSelected && (
+                                        <View style={styles.checkDot} />
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        }}
+                        ListEmptyComponent={
+                            <View style={styles.emptyContainer}>
+                                <Text style={styles.emptyText}>
+                                    {t('signup.noResults') ?? 'Ничего не найдено'}
+                                </Text>
+                            </View>
+                        }
+                    />
+                </SafeAreaView>
             </Modal>
         </>
     );
 };
 
 const styles = StyleSheet.create({
-    overlay: {
+    container: {
         flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        backgroundColor: '#fff',
     },
-    sheet: {
-        backgroundColor: 'white',
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        paddingTop: 10,
-    },
-    handle: {
-        width: 40,
-        height: 4,
-        backgroundColor: '#ccc',
-        borderRadius: 2,
-        alignSelf: 'center',
-        marginBottom: 10,
-    },
-    searchContainer: {
-        marginHorizontal: 12,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: Colors.grayDark,
-        borderRadius: 20,
-        paddingHorizontal: 14,
-        paddingVertical: Platform.OS === 'ios' ? 10 : 4,
-    },
-    searchInput: {
-        fontSize: 14,
-        color: '#000',
-    },
-    list: {
-        flex: 1,
-    },
-    listContent: {
-        paddingBottom: 20,
-    },
-    item: {
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: '#eee',
     },
-    itemText: {
+    backBtn: {
+        padding: 4,
+    },
+    headerTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#000',
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        margin: 16,
+        borderWidth: 1,
+        borderColor: Colors.grayDark,
+        borderRadius: 20,
+        paddingHorizontal: 14,
+        paddingVertical: Platform.OS === 'ios' ? 10 : 6,
+        gap: 8,
+    },
+    searchInput: {
+        flex: 1,
         fontSize: 14,
         color: '#000',
+    },
+    item: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#eee',
+    },
+    itemSelected: {
+        backgroundColor: '#f0faf4',
+    },
+    itemText: {
+        fontSize: 15,
+        color: '#000',
+    },
+    itemTextSelected: {
+        color: Colors.greenSecond,
+        fontWeight: '500',
+    },
+    checkDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: Colors.greenSecond,
     },
     emptyContainer: {
         padding: 32,
@@ -226,4 +236,3 @@ const styles = StyleSheet.create({
 });
 
 export default CountryPickerModal;
-

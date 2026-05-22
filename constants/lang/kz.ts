@@ -140,7 +140,8 @@ export const kz =
     "write": "Пайдаланушыға жазу",
     "reset": "Қалпына келтіру",
     "apply": "Қолдану",
-    "socialNetworks": "Әлеуметтік желілер"
+    "socialNetworks": "Әлеуметтік желілер",
+    "allRegions": "Барлық аймақтар"
   },
   "login": {
     "welcome": "Persona қауымдастығына қош келдіңіз",

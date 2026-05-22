@@ -74,7 +74,7 @@ import SocialLinks from "@/components/SocialLinks";
 import i18n from "@/constants/i18n";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CountryPickerModal from '@/components/CountryPickerModal';
-
+import { XIcon } from "lucide-react-native";
 
 
 // ─── Компонент списка стран с поиском ────────────────────────────────────────
@@ -646,11 +646,12 @@ const confirmIOSDate = () => {
                                                 </FormControlLabelText>
                                             </FormControlLabel>
                                             <CountryPickerModal
-                                                countries={countries}
-                                                selectedCountry={formData.country}
-                                                lang={lang}
-                                                onSelect={(id: string) => onChangeSelect("country", id)}
-                                            />
+    countries={countries}
+    selectedCountry={formData.country}
+    lang={lang}
+    onSelect={(id: string) => onChangeSelect("country", id)}
+    onClear={() => { handleChange("country", null); handleChange("city", null); }}
+/>
                                             <FormControlError>
                                                 <FormControlErrorIcon as={AlertCircleIcon}/>
                                                 <FormControlErrorText>{t('signup.countryError')}</FormControlErrorText>
@@ -666,10 +667,16 @@ const confirmIOSDate = () => {
                                                     {t('signup.city')}
                                                 </FormControlLabelText>
                                             </FormControlLabel>
-                                            <Select selectedValue={getLocalizedName(formData.city)} onOpen={openCitiesPicker}>
+                                            <Select selectedValue={formData.city === null && formData.allRegions ? t('common.allRegions') : getLocalizedName(formData.city)} onOpen={openCitiesPicker}>
                                                 <SelectTrigger variant="rounded" size="md">
                                                     <SelectInput placeholder={t('signup.selectFromList')}/>
-                                                    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+                                                    {formData.city ? (
+    <TouchableOpacity onPress={() => handleChange("city", null)} style={{ paddingRight: 12 }}>
+        <InputIcon as={XIcon} />
+    </TouchableOpacity>
+) : (
+    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+)}
                                                 </SelectTrigger>
                                             </Select>
                                             <FormControlError>
@@ -690,7 +697,13 @@ const confirmIOSDate = () => {
                                             <Select selectedValue={getLocalizedName(formData.fieldOfWork)} onOpen={openFieldOfWorkPicker}>
                                                 <SelectTrigger variant="rounded" size="md">
                                                     <SelectInput placeholder={t('signup.selectFromList')}/>
-                                                    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+                                                    {formData.fieldOfWork ? (
+    <TouchableOpacity onPress={() => handleChange("fieldOfWork", null)} style={{ paddingRight: 12 }}>
+        <InputIcon as={XIcon} />
+    </TouchableOpacity>
+) : (
+    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+)}
                                                 </SelectTrigger>
                                             </Select>
                                             <FormControlError>
@@ -716,7 +729,13 @@ const confirmIOSDate = () => {
                                             >
                                                 <SelectTrigger variant="rounded" size="md">
                                                     <SelectInput placeholder={t('signup.selectFromList')}/>
-                                                    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+                                                    {formData.professions?.length ? (
+    <TouchableOpacity onPress={() => handleChange("professions", [])} style={{ paddingRight: 12 }}>
+        <InputIcon as={XIcon} />
+    </TouchableOpacity>
+) : (
+    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+)}
                                                 </SelectTrigger>
                                             </Select>
                                             <FormControlError>
@@ -789,7 +808,13 @@ const confirmIOSDate = () => {
                                                     onValueChange={value => onChangeSelect("maritalStatus", value)}>
                                                 <SelectTrigger variant="rounded" size="md">
                                                     <SelectInput placeholder={t('signup.selectFromList')}/>
-                                                    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+                                                    {formData.maritalStatus ? (
+    <TouchableOpacity onPress={() => handleChange("maritalStatus", null)} style={{ paddingRight: 12 }}>
+        <InputIcon as={XIcon} />
+    </TouchableOpacity>
+) : (
+    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+)}
                                                 </SelectTrigger>
                                                 <SelectPortal>
                                                     <SelectBackdrop/>
@@ -943,7 +968,13 @@ const confirmIOSDate = () => {
                                             >
                                                 <SelectTrigger variant="rounded" size="md">
                                                     <SelectInput placeholder={t('signup.selectFromList')} />
-                                                    <SelectIcon as={ChevronDownIcon} mr="$3" />
+                                                    {formData.status ? (
+    <TouchableOpacity onPress={() => handleChange("status", null)} style={{ paddingRight: 12 }}>
+        <InputIcon as={XIcon} />
+    </TouchableOpacity>
+) : (
+    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+)}
                                                 </SelectTrigger>
                                                 <SelectPortal>
                                                     <SelectBackdrop />

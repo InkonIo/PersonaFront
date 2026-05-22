@@ -128,7 +128,8 @@ export const ru = {
     "write": "Написать пользователю",
     "reset": "Сбросить",
     "apply": "Применить",
-    "socialNetworks": "Социальные сети"
+    "socialNetworks": "Социальные сети",
+    "allRegions": "Все регионы"
   },
   "login": {
     "welcome": "Добро пожаловать в сообщество Persona",

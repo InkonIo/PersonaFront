@@ -118,7 +118,8 @@ export const en =
     "write": "Write to user",
     "reset": "Reset",
     "apply": "Apply",
-    "socialNetworks": "Social Networks"
+    "socialNetworks": "Social Networks",
+    "allRegions": "All regions"
   },
   "login": {
     "welcome": "Welcome to the Persona community",
