@@ -14,14 +14,18 @@ import * as Linking from 'expo-linking';
 const resolveDeepLinkPath = (url: string): string | null => {
     try {
         const parsed = Linking.parse(url);
-        const path = parsed.path ?? '';
-        if (!path || path === '/') return null;
+        const path = (parsed.path ?? '').replace(/^\//, ''); // убираем leading /
+
+        if (!path) return null;
+
         const userMatch = path.match(/^user\/(.+)$/);
         if (userMatch) return `/user/${userMatch[1]}`;
+
         if (path === 'profile' || path.startsWith('(tabs)/profile')) {
             return '/(tabs)/profile';
         }
-        return path;
+
+        return `/${path}`;
     } catch {
         return null;
     }
@@ -59,6 +63,8 @@ export const AppAuthProvider = ({ children }: { children: React.ReactNode }) => 
             router.replace('/');
         }
     }, [isAuthenticated, isInitialized]);
+
+    
 
     // Logout listener от interceptor
     useEffect(() => {
@@ -145,6 +151,15 @@ export const AppAuthProvider = ({ children }: { children: React.ReactNode }) => 
 
         initAuth();
     }, []);
+
+    useEffect(() => {
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+        if (!url) return;
+        const path = resolveDeepLinkPath(url);
+        if (path) router.replace(path as any);
+    });
+    return () => subscription.remove();
+}, []);
 
     if (!isInitialized) return <LoadingOverlay loading={true} />;
     return children;
