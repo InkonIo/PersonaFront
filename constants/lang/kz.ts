@@ -141,7 +141,8 @@ export const kz =
     "reset": "Қалпына келтіру",
     "apply": "Қолдану",
     "socialNetworks": "Әлеуметтік желілер",
-    "allRegions": "Барлық аймақтар"
+    "allRegions": "Барлық аймақтар",
+    "allCities": "Барлық қалалар"
   },
   "login": {
     "welcome": "Persona қауымдастығына қош келдіңіз",

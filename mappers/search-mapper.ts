@@ -1,10 +1,11 @@
 export const searchMapper = (searchFields: any) => {
+    
     return {
         id: Number(searchFields.id) || null,
         login: searchFields.login || null,
         fullName: searchFields.fullName,
         statusId: searchFields.status?.id || null,
-        cityId: searchFields.city?.id || null,
+        cityId: (searchFields.city?.id && searchFields.city.id !== -1) ? searchFields.city.id : null,
         countryId: searchFields.country?.id || null,
         workFieldId: searchFields.fieldOfWork?.id || null,
         maritalStatusId: searchFields.maritalStatuses?.id || null,

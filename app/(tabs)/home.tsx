@@ -82,11 +82,12 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
 
     const fetchProfiles = useCallback((pageNum: number) => {
     const searchFieldsBack = searchMapper(searchFieldsRef.current);
+    console.log('SEARCH REQUEST:', JSON.stringify(searchFieldsBack)); // ← добавь
     const params = { ...searchFieldsBack, sortBy: sortByRef.current, page: pageNum, size };
     return dispatch(getProfiles(params))
         .unwrap()
         .then(() => setLoadingMore(false));
-}, [size, dispatch]); // ← только стабильные зависимости
+}, [size, dispatch]);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);

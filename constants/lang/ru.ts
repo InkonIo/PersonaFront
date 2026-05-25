@@ -129,7 +129,8 @@ export const ru = {
     "reset": "Сбросить",
     "apply": "Применить",
     "socialNetworks": "Социальные сети",
-    "allRegions": "Все регионы"
+    "allRegions": "Все регионы",
+    "allCities": "Выбрать все"
   },
   "login": {
     "welcome": "Добро пожаловать в сообщество Persona",

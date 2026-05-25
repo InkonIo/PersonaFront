@@ -23,6 +23,7 @@ import { setNetworkErrorListener, clearNetworkError, NetworkErrorType, setOfflin
 import ErrorModal from '@/components/ErrorModal';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppAuthProvider } from "./AppAuthProvider";
+import { DebugOverlay } from '@/components/DebugOverlay';
 
 export {
     ErrorBoundary,
@@ -135,6 +136,7 @@ function RootLayoutNav() {
                         />
                     </AppAuthProvider>
                 </SafeAreaProvider>
+            {__DEV__ && <DebugOverlay />}
             </GestureHandlerRootView>
         </GluestackUIProvider>
     );

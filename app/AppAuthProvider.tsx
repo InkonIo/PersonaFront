@@ -13,17 +13,19 @@ import * as Linking from 'expo-linking';
 
 const resolveDeepLinkPath = (url: string): string | null => {
     try {
+        console.log('🔗 resolveDeepLinkPath raw url:', url); // добавь лог
         const parsed = Linking.parse(url);
-        const path = (parsed.path ?? '').replace(/^\//, ''); // убираем leading /
-
+        console.log('🔗 parsed:', JSON.stringify(parsed));   // и этот
+        
+        const path = (parsed.path ?? '').replace(/^\//, '');
         if (!path) return null;
 
         const userMatch = path.match(/^user\/(.+)$/);
         if (userMatch) return `/user/${userMatch[1]}`;
 
-        if (path === 'profile' || path.startsWith('(tabs)/profile')) {
-            return '/(tabs)/profile';
-        }
+        // Если path это просто число — это и есть user id
+        const bareIdMatch = path.match(/^(\d+)$/);
+        if (bareIdMatch) return `/user/${bareIdMatch[1]}`;
 
         return `/${path}`;
     } catch {

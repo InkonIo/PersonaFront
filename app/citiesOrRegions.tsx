@@ -43,7 +43,7 @@ const CityList = () => {
     const dispatch = useAppDispatch();
     const { loading, selectedCity } = useAppSelector((state) => state.dictionary);
     const { formData } = useAppSelector(state => state.user);
-    const { searchFields } = useAppSelector(state => state.home); // ← добавлено
+    const { searchFields } = useAppSelector(state => state.home);
     const { t } = useTranslation();
     const { showCheckbox = false, fromWhere = "SEARCH" } = route.params || {};
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -53,11 +53,10 @@ const CityList = () => {
     const sortedCities = useAppSelector((state) => selectSortedCities(state, lang));
 
     const ALL_REGIONS_ID = -1;
+    const ALL_CITIES_ID = -2;
 
-    // ─── ФИКС: при входе на экран с чекбоксами синхронизируем selectedCity ──
-    // с нужным источником (профиль или поисковые фильтры), не даём утечь данным
     useEffect(() => {
-        if (!showCheckbox) return; // на экране регионов чекбоксов нет — пропускаем
+        if (!showCheckbox) return;
 
         const sourceCity = fromWhere === "REGISTRATION"
             ? formData?.city
@@ -66,40 +65,55 @@ const CityList = () => {
         if (sourceCity?.id) {
             dispatch(setSelectedCity(sourceCity.id));
         } else {
-            dispatch(setSelectedCity(null)); // ← сбрасываем если источник пуст
+            dispatch(setSelectedCity(null));
         }
     }, [showCheckbox, fromWhere]);
-    // ────────────────────────────────────────────────────────────────────────
 
     const filteredItems: RegionOrCity[] = showCheckbox
-    ? sortedCities.filter((city: RegionOrCity) =>
-        getLocalizedName(city).toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [
-        { id: ALL_REGIONS_ID, name: t('common.allRegions'), code: 'ALL' },
-        ...sortedRegions.filter((region: RegionOrCity) =>
-            getLocalizedName(region).toLowerCase().includes(searchQuery.toLowerCase())
-          )
-      ];
+        ? [
+            { id: ALL_CITIES_ID, name: t('common.allCities'), code: 'ALL_CITIES' },
+            ...sortedCities.filter((city: RegionOrCity) =>
+                getLocalizedName(city).toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          ]
+        : [
+            { id: ALL_REGIONS_ID, name: t('common.allRegions'), code: 'ALL' },
+            ...sortedRegions.filter((region: RegionOrCity) =>
+                getLocalizedName(region).toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          ];
 
     const toggleCitySelection = async (id: number) => {
-    if (!showCheckbox) {
-        if (id === ALL_REGIONS_ID) {
-    const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
-    if (fromWhere === "REGISTRATION") {
-        dispatch(updateFormData({ name: "city", value: allRegionsObj }));
-        navigation.navigate("signup");
-    } else {
-        dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
-        navigation.navigate("search");
-    }
-    return;
-}
-        await goToRegionWithCheckbox(id);
-        return;
-    }
-    dispatch(setSelectedCity(id));
-};
+        if (!showCheckbox) {
+            if (id === ALL_REGIONS_ID) {
+                const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
+                if (fromWhere === "REGISTRATION") {
+                    dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+                    navigation.navigate("signup");
+                } else {
+                    dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
+                    navigation.navigate("search");
+                }
+                return;
+            }
+            await goToRegionWithCheckbox(id);
+            return;
+        }
+
+        if (id === ALL_CITIES_ID) {
+            const allCitiesObj = { id: ALL_CITIES_ID, name: 'Все города', nameRu: 'Все города', nameKz: 'Барлық қалалар', nameEn: 'All cities', code: 'ALL_CITIES' };
+            if (fromWhere === "REGISTRATION") {
+                dispatch(updateFormData({ name: "city", value: allCitiesObj }));
+                navigation.navigate("signup");
+            } else {
+                dispatch(updateSearchFields({ name: "city", value: allCitiesObj }));
+                navigation.navigate("search");
+            }
+            return;
+        }
+
+        dispatch(setSelectedCity(id));
+    };
 
     const goToRegionWithCheckbox = async (regionId: number) => {
         await dispatch(getRegion(regionId));
@@ -107,15 +121,17 @@ const CityList = () => {
     };
 
     const renderCity = ({ item }: { item: RegionOrCity }) => (
-    <TouchableOpacity onPress={() => toggleCitySelection(item.id)} style={styles.cityContainer}>
-        <Text style={[textStyles.body16Light]}>{getLocalizedName(item)}</Text>
-        {showCheckbox ? (
-            <Checkbox value={selectedCity === item.id} onValueChange={() => toggleCitySelection(item.id)} />
-        ) : (
-            item.id !== ALL_REGIONS_ID && <InputIcon as={ChevronRightIcon} />
-        )}
-    </TouchableOpacity>
-);
+        <TouchableOpacity onPress={() => toggleCitySelection(item.id)} style={styles.cityContainer}>
+            <Text style={[textStyles.body16Light]}>{getLocalizedName(item)}</Text>
+            {showCheckbox ? (
+                item.id !== ALL_CITIES_ID && (
+                    <Checkbox value={selectedCity === item.id} onValueChange={() => toggleCitySelection(item.id)} />
+                )
+            ) : (
+                item.id !== ALL_REGIONS_ID && <InputIcon as={ChevronRightIcon} />
+            )}
+        </TouchableOpacity>
+    );
 
     useEffect(() => {
         navigation.setOptions({
