@@ -460,7 +460,7 @@ const confirmIOSDate = () => {
             );
             return
         }
-        navigation.dispatch(StackActions.push("citiesOrRegions", { fromWhere: "REGISTRATION" }))
+        navigation.dispatch(StackActions.push("citiesOrRegions", { fromWhere: isEditMode ? "EDIT" : "REGISTRATION" }))
     }
 
     const openProfessionsPicker = () => {
@@ -667,7 +667,7 @@ const confirmIOSDate = () => {
                                                     {t('signup.city')}
                                                 </FormControlLabelText>
                                             </FormControlLabel>
-                                            <Select selectedValue={formData.city === null && formData.allRegions ? t('common.allRegions') : getLocalizedName(formData.city)} onOpen={openCitiesPicker}>
+                                            <Select selectedValue={!isEditMode && formData.city === null && formData.allRegions ? t('common.allRegions') : getLocalizedName(formData.city)} onOpen={openCitiesPicker}>
                                                 <SelectTrigger variant="rounded" size="md">
                                                     <SelectInput placeholder={t('signup.selectFromList')}/>
                                                     {formData.city ? (

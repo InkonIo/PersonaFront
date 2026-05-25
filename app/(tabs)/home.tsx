@@ -82,6 +82,8 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
 
     const fetchProfiles = useCallback((pageNum: number) => {
     const searchFieldsBack = searchMapper(searchFieldsRef.current);
+    console.log('CITY FIELD:', JSON.stringify(searchFieldsRef.current.city)); // ← добавь
+    console.log('SEARCH REQUEST:', JSON.stringify(searchFieldsBack));
     console.log('SEARCH REQUEST:', JSON.stringify(searchFieldsBack)); // ← добавь
     const params = { ...searchFieldsBack, sortBy: sortByRef.current, page: pageNum, size };
     return dispatch(getProfiles(params))
@@ -218,14 +220,14 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
                                 </View>
                             </View>
                             <Button
-                                style={[buttonStyles.activeFilledButton]}
-                                marginTop={8}
-                                marginBottom={16}
-                                marginHorizontal={16}
-                                onPress={() => { router.push(`/chat/${item.id}` as any); }}
-                            >
-                                <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>{t('common.write')}</ButtonText>
-                            </Button>
+    style={[buttonStyles.activeFilledButton]}
+    marginTop={8}
+    marginBottom={16}
+    marginHorizontal={16}
+    onPress={() => { router.push(`/user/${item.id}` as any); }}
+>
+    <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>{t('userProfile.rateButton')}</ButtonText>
+</Button>
                         </View>
                     </Pressable>
                 </Link>

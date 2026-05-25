@@ -290,9 +290,9 @@ const Page = () => {
 {isAuthenticated && !isOwnProfile && (
     <Button
         style={[buttonStyles.activeFilledButton, { marginHorizontal: 16 }]}
-        onPress={handleShowModal}
+        onPress={() => router.push(`/chat/${id}` as any)}
     >
-        <ButtonText>{t('userProfile.rateButton')}</ButtonText>
+        <ButtonText>{t('common.write')}</ButtonText>
     </Button>
 )}
 

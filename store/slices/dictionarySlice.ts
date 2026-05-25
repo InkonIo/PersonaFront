@@ -2,6 +2,7 @@ import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@r
 import { DictionaryTypes } from "@/enum";
 import { instance } from "@/store/api";
 import i18n from "../../constants/i18n";
+import { useState } from 'react';
 
 // ─── Хелпер: выбирает нужное поле name по текущему языку ─────────────────────
 export const getLocalizedName = (item: any, lang?: string): string => {
@@ -25,6 +26,7 @@ const fetchData = async (dictionaryType: DictionaryTypes) => {
     const response = await instance.get(`public/dictionary/${dictionaryType}`);
     return response.data;
 };
+
 
 // ─── Все словари включая страны — с бэкенда ───────────────────────────────────
 export const getAllDictionaryData = createAsyncThunk(
