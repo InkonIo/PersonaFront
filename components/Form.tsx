@@ -216,6 +216,7 @@ const Form = () => {
                                     selectedCountry={searchFields.country}
                                     lang={lang}
                                     onSelect={(id: string) => onChangeSelect("country", id)}
+                                    onClear={() => handleChange("country", null)}
                                 />
                             </FormControl>
                         </VStack>

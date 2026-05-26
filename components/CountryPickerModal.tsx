@@ -63,30 +63,36 @@ const CountryPickerModal = ({
 
     return (
         <>
-            <TouchableOpacity onPress={() => setVisible(true)} activeOpacity={0.7}>
-                <Input
-                    variant="rounded"
-                    size="md"
-                    borderWidth={1}
-                    borderColor={Colors.grayDark}
-                    pointerEvents="none"
-                >
-                    <InputField
-                        placeholder={placeholder ?? t('signup.selectFromList')}
-                        value={selectedCountry ? getLocalizedName(selectedCountry, lang) : ''}
-                        editable={false}
-                    />
-                    <InputSlot pr="$3">
-                        {selectedCountry && onClear ? (
-                            <TouchableOpacity onPress={onClear}>
-                                <InputIcon as={XIcon} />
-                            </TouchableOpacity>
-                        ) : (
-                            <InputIcon as={ChevronDownIcon} />
-                        )}
-                    </InputSlot>
-                </Input>
-            </TouchableOpacity>
+            <View style={{ position: 'relative' }}>
+                <TouchableOpacity onPress={() => setVisible(true)} activeOpacity={0.7}>
+                    <Input
+                        variant="rounded"
+                        size="md"
+                        borderWidth={1}
+                        borderColor={Colors.grayDark}
+                        pointerEvents="none"
+                    >
+                        <InputField
+                            placeholder={placeholder ?? t('signup.selectFromList')}
+                            value={selectedCountry ? getLocalizedName(selectedCountry, lang) : ''}
+                            editable={false}
+                        />
+                        <InputSlot pr="$3">
+                            <InputIcon as={selectedCountry && onClear ? XIcon : ChevronDownIcon} />
+                        </InputSlot>
+                    </Input>
+                </TouchableOpacity>
+
+                {selectedCountry && onClear && (
+                    <TouchableOpacity
+                        onPress={onClear}
+                        style={styles.clearButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <XIcon size={18} color={Colors.grayDark} />
+                    </TouchableOpacity>
+                )}
+            </View>
 
             <Modal
                 visible={visible}
@@ -97,7 +103,6 @@ const CountryPickerModal = ({
                 <SafeAreaView style={styles.container}>
                     <StatusBar barStyle="dark-content" />
 
-                    {/* Хедер */}
                     <View style={styles.header}>
                         <TouchableOpacity onPress={handleClose} style={styles.backBtn}>
                             <ArrowLeftIcon size={22} color="#000" />
@@ -106,7 +111,6 @@ const CountryPickerModal = ({
                         <View style={{ width: 32 }} />
                     </View>
 
-                    {/* Поиск */}
                     <View style={styles.searchContainer}>
                         <SearchIcon size={16} color={Colors.grayDark} />
                         <TextInput
@@ -125,7 +129,6 @@ const CountryPickerModal = ({
                         )}
                     </View>
 
-                    {/* Список */}
                     <FlatList
                         data={filtered}
                         keyExtractor={(item) => String(item.id)}
@@ -141,9 +144,7 @@ const CountryPickerModal = ({
                                     <Text style={[styles.itemText, isSelected && styles.itemTextSelected]}>
                                         {getLocalizedName(item, lang)}
                                     </Text>
-                                    {isSelected && (
-                                        <View style={styles.checkDot} />
-                                    )}
+                                    {isSelected && <View style={styles.checkDot} />}
                                 </TouchableOpacity>
                             );
                         }}
@@ -165,6 +166,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    clearButton: {
+        position: 'absolute',
+        right: 12,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
     },
     header: {
         flexDirection: 'row',

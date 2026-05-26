@@ -21,28 +21,17 @@ import {
     FormControl,
     FormControlLabel,
     FormControlLabelText,
-    Icon,
     Input,
     InputField,
-    ModalBackdrop,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
     Textarea,
     TextareaInput,
     VStack,
-    Modal,
-    CloseIcon,
-    ModalCloseButton,
-    Heading
 } from "@gluestack-ui/themed";
 import { buttonStyles } from "@/constants/buttonStyles";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ShareIcon from "@/assets/icons/ShareIcon";
-import { getUserInfoById, updateUserRatingOptimistic, clearUserInfoById } from "@/store/slices/profileSlice";
+import { getUserInfoById, clearUserInfoById } from "@/store/slices/profileSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { checkForRating, setRating } from "@/store/slices/ratingsSlice";
 import { getCorrectRatingWord } from "@/app/helpers";
 import SocialLinks from "@/components/SocialLinks";
 import { useTranslation } from 'react-i18next';
@@ -69,25 +58,18 @@ const styles = StyleSheet.create({
 });
 
 const Page = () => {
-    console.log('🔴 [user/id] COMPONENT RENDERED, id:', useLocalSearchParams().id);
     const { t, i18n } = useTranslation();
     const lang = i18n.language;
     const navigation = useNavigation();
     const router = useRouter();
 
-    const [starRating, setStarRating] = useState(0);
-    const [showModal, setShowModal] = useState(false);
-
     const { id } = useLocalSearchParams<{ id: string }>();
     const dispatch = useAppDispatch();
     const { userInfoById, loading } = useAppSelector(state => state.profile);
-    const { isRatingSetted } = useAppSelector(state => state.rating);
     const { isAuthenticated, isInitialized, isLoggingOut } = useAppSelector(state => state.auth);
     const userInfo = useAppSelector(state => state.user.userInfo);
     const isOwnProfile = userInfo?.id === Number(id);
     const [isHidden, setIsHidden] = useState(false);
-
-    const ref = useRef(null);
 
     const canGoBack = useNavigationState(state => {
         if (!state) return false;
@@ -102,16 +84,6 @@ const Page = () => {
             Alert.alert(t('common.error'), error.message);
         }
     }, [id, t]);
-
-    const handleShowModal = () => {
-        setStarRating(isRatingSetted?.value ?? 0);
-        setShowModal(true);
-    };
-
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setStarRating(0);
-    };
 
     // Загрузка профиля — для всех, авторизован или нет
     useEffect(() => {
@@ -129,12 +101,6 @@ const Page = () => {
                 }
             });
     }, [id, isInitialized, isLoggingOut]);
-
-    // Рейтинг — только для авторизованных
-    useEffect(() => {
-        if (!id || !isAuthenticated || !isInitialized || isLoggingOut) return;
-        dispatch(checkForRating({ id }));
-    }, [id, isAuthenticated, isInitialized, isLoggingOut]);
 
     useEffect(() => {
         navigation.setOptions({
@@ -159,36 +125,6 @@ const Page = () => {
             ),
         });
     }, [handleShare, canGoBack, t, isAuthenticated]);
-
-    const sendRatingToBackend = async () => {
-        if (starRating === 0) return;
-
-        try {
-            await dispatch(setRating({ id, value: starRating })).unwrap();
-
-            const currentRating = userInfoById?.rating ?? 0;
-            const currentCount  = userInfoById?.ratingCount ?? 0;
-            const isUpdate      = isRatingSetted?.value != null;
-
-            const prevValuePercent = isUpdate ? (isRatingSetted!.value * 10) : 0;
-            const newValuePercent  = starRating * 10;
-            const newCount         = isUpdate ? currentCount : currentCount + 1;
-
-            const newRating = Math.round(
-                (currentRating * currentCount - prevValuePercent + newValuePercent) / newCount
-            );
-
-            dispatch(updateUserRatingOptimistic({ userId: id, newRating, newCount }));
-
-            setShowModal(false);
-            setStarRating(0);
-            dispatch(checkForRating({ id }));
-            Alert.alert(t('userProfile.ratingTitle'), t('userProfile.ratingSuccess'), [{ text: 'OK' }]);
-        } catch (err: any) {
-            setStarRating(0);
-            Alert.alert(t('common.error'), err.message || t('common.errorMessage'), [{ text: 'OK' }]);
-        }
-    };
 
     const countryLabel = getLocalizedField(userInfoById?.country, lang);
     const cityLabel    = getLocalizedField(userInfoById?.city, lang);
@@ -286,53 +222,15 @@ const Page = () => {
                             </View>
                         </View>
 
-                        {/* Кнопка оценить — только для авторизованных, на чужом профиле */}
-{isAuthenticated && !isOwnProfile && (
-    <Button
-        style={[buttonStyles.activeFilledButton, { marginHorizontal: 16 }]}
-        onPress={() => router.push(`/chat/${id}` as any)}
-    >
-        <ButtonText>{t('common.write')}</ButtonText>
-    </Button>
-)}
-
-                        <Modal isOpen={showModal} onClose={handleCloseModal} finalFocusRef={ref}>
-                            <ModalBackdrop />
-                            <ModalContent>
-                                <ModalHeader>
-                                    <Heading size="lg">{t('userProfile.ratingTitle')}</Heading>
-                                    <ModalCloseButton>
-                                        <Icon as={CloseIcon} />
-                                    </ModalCloseButton>
-                                </ModalHeader>
-                                <ModalBody>
-                                    <Text style={[textStyles.body12Light, { color: Colors.grayDark, marginBottom: 12 }]}>
-                                        {t('userProfile.ratingPrompt')}
-                                    </Text>
-                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', paddingHorizontal: 8 }}>
-                                        <Stars
-                                            key={`modal-${showModal}`}
-                                            initialRating={starRating}
-                                            size={24}
-                                            onRatingChange={(rating) => setStarRating(rating)}
-                                            disabled={false}
-                                        />
-                                    </View>
-                                </ModalBody>
-                                <ModalFooter>
-                                    <Button style={[buttonStyles.activeTextButton]} onPress={handleCloseModal}>
-                                        <ButtonText>{t('common.cancel')}</ButtonText>
-                                    </Button>
-                                    <Button
-                                        style={[buttonStyles.activeFilledButton]}
-                                        onPress={sendRatingToBackend}
-                                        isDisabled={starRating === 0}
-                                    >
-                                        <ButtonText>{t('common.save')}</ButtonText>
-                                    </Button>
-                                </ModalFooter>
-                            </ModalContent>
-                        </Modal>
+                        {/* Кнопка написать — только для авторизованных, на чужом профиле */}
+                        {isAuthenticated && !isOwnProfile && (
+                            <Button
+                                style={[buttonStyles.activeFilledButton, { marginHorizontal: 16 }]}
+                                onPress={() => router.push(`/chat/${id}` as any)}
+                            >
+                                <ButtonText>{t('common.write')}</ButtonText>
+                            </Button>
+                        )}
 
                         <View style={styles.form}>
                             <VStack space="xl">

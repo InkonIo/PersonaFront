@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     FlatList,
     Image,
     Platform,
@@ -17,7 +18,25 @@ import Colors from '@/constants/Colors';
 import { textStyles } from '@/constants/textStyles';
 import { buttonStyles } from '@/constants/buttonStyles';
 import FilterIcon from '@/assets/icons/FilterIcon';
-import { Button, ButtonText, Input, InputField, InputIcon, InputSlot, SearchIcon } from '@gluestack-ui/themed';
+import {
+    Button,
+    ButtonText,
+    CloseIcon,
+    Heading,
+    Icon,
+    Input,
+    InputField,
+    InputIcon,
+    InputSlot,
+    Modal,
+    ModalBackdrop,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    SearchIcon,
+} from '@gluestack-ui/themed';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearProfiles, getProfiles } from '@/store/slices/profileSlice';
 import { searchMapper } from '@/mappers/search-mapper';
@@ -36,8 +55,9 @@ import * as Notifications from 'expo-notifications';
 import { getCorrectRatingWord } from '@/app/helpers';
 import { useTranslation } from 'react-i18next';
 import { getLocalizedName } from '@/store/slices/dictionarySlice';
-import { Ionicons } from '@expo/vector-icons';
 import UserAvatar from '@/components/UserAvatar';
+import { checkForRating, setRating } from '@/store/slices/ratingsSlice';
+import { updateUserRatingOptimistic } from '@/store/slices/profileSlice';
 
 
 const getLocalizedStatus = (status: any, lang: string): string => {
@@ -62,38 +82,38 @@ const Page = () => {
     const { profiles, loading: profileLoading } = useAppSelector((state) => state.profile);
     const { userInfo, loading: userLoading } = useAppSelector((state) => state.user);
     const { loading: dictionaryLoading } = useAppSelector((state) => state.dictionary);
+    const { isRatingSetted } = useAppSelector((state) => state.rating);
     const [refreshing, setRefreshing] = useState(false);
     const [page, setPage] = useState(0);
     const [size] = useState(5);
     const [loadingMore, setLoadingMore] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // ✅ Флаг: нужно ли делать рефетч при следующем фокусе
-    // true — первый вход, после фильтра, после pull-to-refresh
-    // false — просто возврат назад из детального просмотра
+    // Rating modal state
+    const [rateModalVisible, setRateModalVisible] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [selectedUserItem, setSelectedUserItem] = useState<any>(null);
+    const [starRating, setStarRating] = useState(0);
+    const rateModalRef = useRef(null);
+
     const shouldRefetchRef = useRef(true);
 
-    // 🔧 FIX: refs для стабильного fetchProfiles
-const searchFieldsRef = useRef(searchFields);
-const sortByRef = useRef(sortBy);
+    const searchFieldsRef = useRef(searchFields);
+    const sortByRef = useRef(sortBy);
 
-useEffect(() => { searchFieldsRef.current = searchFields; }, [searchFields]);
-useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
+    useEffect(() => { searchFieldsRef.current = searchFields; }, [searchFields]);
+    useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
 
     const fetchProfiles = useCallback((pageNum: number) => {
-    const searchFieldsBack = searchMapper(searchFieldsRef.current);
-    console.log('CITY FIELD:', JSON.stringify(searchFieldsRef.current.city)); // ← добавь
-    console.log('SEARCH REQUEST:', JSON.stringify(searchFieldsBack));
-    console.log('SEARCH REQUEST:', JSON.stringify(searchFieldsBack)); // ← добавь
-    const params = { ...searchFieldsBack, sortBy: sortByRef.current, page: pageNum, size };
-    return dispatch(getProfiles(params))
-        .unwrap()
-        .then(() => setLoadingMore(false));
-}, [size, dispatch]);
+        const searchFieldsBack = searchMapper(searchFieldsRef.current);
+        const params = { ...searchFieldsBack, sortBy: sortByRef.current, page: pageNum, size };
+        return dispatch(getProfiles(params))
+            .unwrap()
+            .then(() => setLoadingMore(false));
+    }, [size, dispatch]);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
-        // Явный pull-to-refresh — разрешаем следующий рефетч
         shouldRefetchRef.current = true;
         dispatch(clearProfiles());
         setPage(0);
@@ -107,7 +127,6 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
     const onApplySort = async () => {
         if (!sortBy) return;
         setIsSubmitting(true);
-        // После применения фильтра — разрешаем рефетч при следующем фокусе
         shouldRefetchRef.current = true;
         dispatch(clearProfiles());
         setPage(0);
@@ -121,6 +140,51 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
 
     const toggleModal = () => {
         setIsModalVisible((prev) => !prev);
+    };
+
+    // Rating modal handlers
+    const handleOpenRateModal = (item: any) => {
+        setSelectedUserId(String(item.id));
+        setSelectedUserItem(item);
+        setStarRating(0);
+        dispatch(checkForRating({ id: String(item.id) }));
+        setRateModalVisible(true);
+    };
+
+    const handleCloseRateModal = () => {
+        setRateModalVisible(false);
+        setSelectedUserId(null);
+        setSelectedUserItem(null);
+        setStarRating(0);
+    };
+
+    const sendRatingToBackend = async () => {
+        if (starRating === 0 || !selectedUserId || !selectedUserItem) return;
+
+        try {
+            await dispatch(setRating({ id: selectedUserId, value: starRating })).unwrap();
+
+            const currentRating = selectedUserItem?.rating ?? 0;
+            const currentCount  = selectedUserItem?.ratingCount ?? 0;
+            const isUpdate      = isRatingSetted?.value != null;
+
+            const prevValuePercent = isUpdate ? (isRatingSetted!.value * 10) : 0;
+            const newValuePercent  = starRating * 10;
+            const newCount         = isUpdate ? currentCount : currentCount + 1;
+
+            const newRating = Math.round(
+                (currentRating * currentCount - prevValuePercent + newValuePercent) / newCount
+            );
+
+            dispatch(updateUserRatingOptimistic({ userId: selectedUserId, newRating, newCount }));
+
+            handleCloseRateModal();
+            dispatch(checkForRating({ id: selectedUserId }));
+            Alert.alert(t('userProfile.ratingTitle'), t('userProfile.ratingSuccess'), [{ text: 'OK' }]);
+        } catch (err: any) {
+            setStarRating(0);
+            Alert.alert(t('common.error'), err.message || t('common.errorMessage'), [{ text: 'OK' }]);
+        }
     };
 
     useEffect(() => {
@@ -151,10 +215,7 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
 
     useFocusEffect(
         useCallback(() => {
-            // ✅ Если флаг false — просто вернулись назад, список не трогаем
             if (!shouldRefetchRef.current) return;
-
-            // ✅ Сбрасываем флаг и грузим данные
             shouldRefetchRef.current = false;
             setPage(0);
             fetchProfiles(0);
@@ -168,8 +229,6 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
 
     const renderItem = useCallback(
         ({ item, index }: { item: any; index: number }) => {
-            const hasAvatar = !!item.imageUrl && item.imageUrl.trim() !== '';
-
             return (
                 <Link href={`/user/${item.id}`} key={`${item.id}-${item.rating}`} asChild>
                     <Pressable>
@@ -220,14 +279,17 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
                                 </View>
                             </View>
                             <Button
-    style={[buttonStyles.activeFilledButton]}
-    marginTop={8}
-    marginBottom={16}
-    marginHorizontal={16}
-    onPress={() => { router.push(`/user/${item.id}` as any); }}
->
-    <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>{t('userProfile.rateButton')}</ButtonText>
-</Button>
+                                style={[buttonStyles.activeFilledButton]}
+                                marginTop={8}
+                                marginBottom={16}
+                                marginHorizontal={16}
+                                onPress={(e) => {
+                                    e.stopPropagation?.();
+                                    handleOpenRateModal(item);
+                                }}
+                            >
+                                <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>{t('userProfile.rateButton')}</ButtonText>
+                            </Button>
                         </View>
                     </Pressable>
                 </Link>
@@ -312,6 +374,45 @@ useEffect(() => { sortByRef.current = sortBy; }, [sortBy]);
                     onApplySort={onApplySort}
                 />
             </SafeAreaView>
+
+            {/* Rating Modal */}
+            <Modal isOpen={rateModalVisible} onClose={handleCloseRateModal} finalFocusRef={rateModalRef}>
+                <ModalBackdrop />
+                <ModalContent>
+                    <ModalHeader>
+                        <Heading size="lg">{t('userProfile.ratingTitle')}</Heading>
+                        <ModalCloseButton>
+                            <Icon as={CloseIcon} />
+                        </ModalCloseButton>
+                    </ModalHeader>
+                    <ModalBody>
+                        <Text style={[textStyles.body12Light, { color: Colors.grayDark, marginBottom: 12 }]}>
+                            {t('userProfile.ratingPrompt')}
+                        </Text>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', paddingHorizontal: 8 }}>
+                            <Stars
+                                key={`modal-${rateModalVisible}-${selectedUserId}`}
+                                initialRating={starRating}
+                                size={24}
+                                onRatingChange={(rating) => setStarRating(rating)}
+                                disabled={false}
+                            />
+                        </View>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button style={[buttonStyles.activeTextButton]} onPress={handleCloseRateModal}>
+                            <ButtonText>{t('common.cancel')}</ButtonText>
+                        </Button>
+                        <Button
+                            style={[buttonStyles.activeFilledButton]}
+                            onPress={sendRatingToBackend}
+                            isDisabled={starRating === 0}
+                        >
+                            <ButtonText>{t('common.save')}</ButtonText>
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
 
             {showOnboarding && <Onboarding onClose={() => setShowOnboarding(false)} />}
 

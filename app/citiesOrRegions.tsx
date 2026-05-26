@@ -74,7 +74,7 @@ const CityList = () => {
 
     const filteredItems: RegionOrCity[] = showCheckbox
         ? [
-            { id: ALL_CITIES_ID, name: t('common.allCities'), code: 'ALL_CITIES' },
+            ...(fromWhere === "SEARCH" ? [{ id: ALL_CITIES_ID, name: t('common.allCities'), code: 'ALL_CITIES' }] : []),
             ...sortedCities.filter((city: RegionOrCity) =>
                 getLocalizedName(city).toLowerCase().includes(searchQuery.toLowerCase())
             )
@@ -87,47 +87,51 @@ const CityList = () => {
   ];
 
     const toggleCitySelection = async (id: number) => {
-        if (!showCheckbox) {
-            if (id === ALL_REGIONS_ID) {
-                console.log('REGION SELECTED:', JSON.stringify(sortedRegions.find(r => r.id === id)));
-                await goToRegionWithCheckbox(id);
-                const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
-                if (fromWhere === "REGISTRATION") {
-                    dispatch(updateFormData({ name: "city", value: allRegionsObj }));
-                    navigation.navigate("signup");
-                } else {
-                    dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
-                    navigation.navigate("search");
-                }
-                return;
-            }
-            await goToRegionWithCheckbox(id);
-            return;
-        }
-
-        if (id === ALL_CITIES_ID) {
-            const allCitiesObj = { 
-    id: ALL_CITIES_ID, 
-    name: 'Все города', 
-    nameRu: 'Все города', 
-    nameKz: 'Барлық қалалар', 
-    nameEn: 'All cities', 
-    code: 'ALL_CITIES',
-    regionId: regionId  // ← добавь
-};
-
+    if (!showCheckbox) {
+        if (id === ALL_REGIONS_ID) {
+            const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
             if (fromWhere === "REGISTRATION") {
-                dispatch(updateFormData({ name: "city", value: allCitiesObj }));
+                dispatch(updateFormData({ name: "city", value: allRegionsObj }));
                 navigation.navigate("signup");
+            } else if (fromWhere === "EDIT") {
+                dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+                navigation.goBack();
             } else {
-                dispatch(updateSearchFields({ name: "city", value: allCitiesObj }));
+                dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
                 navigation.navigate("search");
             }
             return;
         }
+        await goToRegionWithCheckbox(id);
+        return;
+    }
 
-        dispatch(setSelectedCity(id));
-    };
+    if (id === ALL_CITIES_ID) {
+        const allCitiesObj = { 
+            id: ALL_CITIES_ID, 
+            name: 'Все города', 
+            nameRu: 'Все города', 
+            nameKz: 'Барлық қалалар', 
+            nameEn: 'All cities', 
+            code: 'ALL_CITIES',
+            regionId: regionId
+        };
+        if (fromWhere === "REGISTRATION") {
+            dispatch(updateFormData({ name: "city", value: allCitiesObj }));
+            navigation.navigate("signup");
+        } else if (fromWhere === "EDIT") {
+            dispatch(updateFormData({ name: "city", value: allCitiesObj }));
+            navigation.goBack();
+        } else {
+            dispatch(updateSearchFields({ name: "city", value: allCitiesObj }));
+            navigation.navigate("search");
+        }
+        return;
+    }
+
+    dispatch(setSelectedCity(id));
+};
+
 
     const goToRegionWithCheckbox = async (regionId: number) => {
     setCurrentRegionId(regionId);
@@ -160,15 +164,18 @@ const CityList = () => {
     }, [navigation, selectedCity, showCheckbox, t]);
 
     const onSelectCity = () => {
-        const currentSelectedCity = sortedCities.find((city: RegionOrCity) => city.id === selectedCity);
-        if (fromWhere === "REGISTRATION") {
-            dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
-            navigation.navigate("signup");
-        } else {
-            dispatch(updateSearchFields({ name: "city", value: currentSelectedCity }));
-            navigation.navigate("search");
-        }
-    };
+    const currentSelectedCity = sortedCities.find((city: RegionOrCity) => city.id === selectedCity);
+    if (fromWhere === "REGISTRATION") {
+        dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
+        navigation.navigate("signup");
+    } else if (fromWhere === "EDIT") {
+        dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
+        navigation.goBack();
+    } else {
+        dispatch(updateSearchFields({ name: "city", value: currentSelectedCity }));
+        navigation.navigate("search");
+    }
+};
 
     return (
         <View style={styles.container}>
