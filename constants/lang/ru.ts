@@ -56,7 +56,9 @@ export const ru = {
     "feedback": "Оставить обратную связь",
     "logout": "Выйти",
     "region": "Регион",
-    "language": "Язык"
+    "language": "Язык",
+    "share": "Поделиться профилем",
+    "settings": "Настройки"
   },
   "anket": {
     "changeVisibility": "Изменить видимость анкеты",

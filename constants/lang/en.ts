@@ -70,7 +70,9 @@ export const en =
     "feedback": "Leave feedback",
     "logout": "Logout",
     "region": "Region",
-    "language": "Language"
+    "language": "Language",
+    "share": "Share profile",
+    "settings": "Settings"
   },
   "anket": {
     "changeVisibility": "Change profile visibility",

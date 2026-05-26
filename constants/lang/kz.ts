@@ -92,7 +92,9 @@ export const kz =
     "feedback": "Пікір қалдыру",
     "logout": "Шығу",
     "region": "Аймақ",
-    "language": "Тіл"
+    "language": "Тіл",
+    "share": "Профильмен бөлісу",
+    "settings": "Параметрлер"
   },
   "anket": {
     "changeVisibility": "Анкета көрінуін өзгерту",

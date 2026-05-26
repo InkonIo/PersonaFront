@@ -25,10 +25,10 @@ type RootStackParamList = {
     signup: undefined;
     search: undefined;
     citiesOrRegions: {
-    showCheckbox?: boolean;
-    fromWhere?: "REGISTRATION" | "SEARCH" | "EDIT";
-    regionId?: number | null;
-};
+        showCheckbox?: boolean;
+        fromWhere?: "REGISTRATION" | "SEARCH" | "EDIT";
+        regionId?: number | null;
+    };
 };
 
 type RegionOrCity = {
@@ -53,22 +53,32 @@ const CityList = () => {
     const sortedRegions = useAppSelector((state) => selectSortedRegions(state, lang));
     const sortedCities = useAppSelector((state) => selectSortedCities(state, lang));
 
+    // Множественный выбор — только для SEARCH
+    const [selectedCities, setSelectedCities] = useState<Set<number>>(new Set());
+
     const ALL_REGIONS_ID = -1;
     const ALL_CITIES_ID = -2;
 
     const [currentRegionId, setCurrentRegionId] = useState<number | null>(null);
 
+    // Инициализация — разделена на SEARCH и остальные
     useEffect(() => {
         if (!showCheckbox) return;
-
-        const sourceCity = fromWhere === "REGISTRATION"
-            ? formData?.city
-            : searchFields?.city;
-
-        if (sourceCity?.id) {
-            dispatch(setSelectedCity(sourceCity.id));
+        if (fromWhere === "SEARCH") {
+            const sourceCity = searchFields?.city;
+            if (sourceCity?.id && sourceCity.id !== ALL_CITIES_ID) {
+                setSelectedCities(new Set([sourceCity.id]));
+            } else {
+                setSelectedCities(new Set());
+            }
         } else {
-            dispatch(setSelectedCity(null));
+            // REGISTRATION и EDIT — старая логика через Redux
+            const sourceCity = fromWhere === "REGISTRATION" ? formData?.city : searchFields?.city;
+            if (sourceCity?.id) {
+                dispatch(setSelectedCity(sourceCity.id));
+            } else {
+                dispatch(setSelectedCity(null));
+            }
         }
     }, [showCheckbox, fromWhere]);
 
@@ -80,71 +90,84 @@ const CityList = () => {
             )
           ]
         : [
-    ...(fromWhere !== "EDIT" ? [{ id: ALL_REGIONS_ID, name: t('common.allRegions'), code: 'ALL' }] : []),
-    ...sortedRegions.filter((region: RegionOrCity) =>
-        getLocalizedName(region).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  ];
+            ...(fromWhere !== "EDIT" ? [{ id: ALL_REGIONS_ID, name: t('common.allRegions'), code: 'ALL' }] : []),
+            ...sortedRegions.filter((region: RegionOrCity) =>
+                getLocalizedName(region).toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          ];
 
     const toggleCitySelection = async (id: number) => {
-    if (!showCheckbox) {
-        if (id === ALL_REGIONS_ID) {
-            const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
+        if (!showCheckbox) {
+            if (id === ALL_REGIONS_ID) {
+                const allRegionsObj = { id: ALL_REGIONS_ID, name: 'Все регионы', nameRu: 'Все регионы', nameKz: 'Барлық аймақтар', nameEn: 'All regions', code: 'ALL' };
+                if (fromWhere === "REGISTRATION") {
+                    dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+                    navigation.navigate("signup");
+                } else if (fromWhere === "EDIT") {
+                    dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+                    navigation.goBack();
+                } else {
+                    dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
+                    navigation.navigate("search");
+                }
+                return;
+            }
+            await goToRegionWithCheckbox(id);
+            return;
+        }
+
+        if (id === ALL_CITIES_ID) {
+            const allCitiesObj = {
+                id: ALL_CITIES_ID,
+                name: 'Все города',
+                nameRu: 'Все города',
+                nameKz: 'Барлық қалалар',
+                nameEn: 'All cities',
+                code: 'ALL_CITIES',
+                regionId: regionId
+            };
             if (fromWhere === "REGISTRATION") {
-                dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+                dispatch(updateFormData({ name: "city", value: allCitiesObj }));
                 navigation.navigate("signup");
             } else if (fromWhere === "EDIT") {
-                dispatch(updateFormData({ name: "city", value: allRegionsObj }));
+                dispatch(updateFormData({ name: "city", value: allCitiesObj }));
                 navigation.goBack();
             } else {
-                dispatch(updateSearchFields({ name: "city", value: allRegionsObj }));
+                dispatch(updateSearchFields({ name: "city", value: allCitiesObj }));
                 navigation.navigate("search");
             }
             return;
         }
-        await goToRegionWithCheckbox(id);
-        return;
-    }
 
-    if (id === ALL_CITIES_ID) {
-        const allCitiesObj = { 
-            id: ALL_CITIES_ID, 
-            name: 'Все города', 
-            nameRu: 'Все города', 
-            nameKz: 'Барлық қалалар', 
-            nameEn: 'All cities', 
-            code: 'ALL_CITIES',
-            regionId: regionId
-        };
-        if (fromWhere === "REGISTRATION") {
-            dispatch(updateFormData({ name: "city", value: allCitiesObj }));
-            navigation.navigate("signup");
-        } else if (fromWhere === "EDIT") {
-            dispatch(updateFormData({ name: "city", value: allCitiesObj }));
-            navigation.goBack();
+        if (fromWhere === "SEARCH") {
+            // Множественный выбор — только для поиска
+            setSelectedCities(prev => {
+                const next = new Set(prev);
+                if (next.has(id)) next.delete(id);
+                else next.add(id);
+                return next;
+            });
         } else {
-            dispatch(updateSearchFields({ name: "city", value: allCitiesObj }));
-            navigation.navigate("search");
+            // REGISTRATION и EDIT — старая логика через Redux
+            dispatch(setSelectedCity(id));
         }
-        return;
-    }
-
-    dispatch(setSelectedCity(id));
-};
-
+    };
 
     const goToRegionWithCheckbox = async (regionId: number) => {
-    setCurrentRegionId(regionId);
-    await dispatch(getRegion(regionId));
-    navigation.dispatch(StackActions.push("citiesOrRegions", { showCheckbox: true, fromWhere, regionId })); // ← добавь regionId
-};
+        setCurrentRegionId(regionId);
+        await dispatch(getRegion(regionId));
+        navigation.dispatch(StackActions.push("citiesOrRegions", { showCheckbox: true, fromWhere, regionId }));
+    };
 
     const renderCity = ({ item }: { item: RegionOrCity }) => (
         <TouchableOpacity onPress={() => toggleCitySelection(item.id)} style={styles.cityContainer}>
             <Text style={[textStyles.body16Light]}>{getLocalizedName(item)}</Text>
             {showCheckbox ? (
                 item.id !== ALL_CITIES_ID && (
-                    <Checkbox value={selectedCity === item.id} onValueChange={() => toggleCitySelection(item.id)} />
+                    <Checkbox
+                        value={fromWhere === "SEARCH" ? selectedCities.has(item.id) : selectedCity === item.id}
+                        onValueChange={() => toggleCitySelection(item.id)}
+                    />
                 )
             ) : (
                 item.id !== ALL_REGIONS_ID && <InputIcon as={ChevronRightIcon} />
@@ -152,30 +175,46 @@ const CityList = () => {
         </TouchableOpacity>
     );
 
+    // Хедер "Сбросить" — учитывает оба стейта
     useEffect(() => {
         navigation.setOptions({
             headerRight: () =>
-                showCheckbox && selectedCity !== null ? (
-                    <TouchableOpacity onPress={() => dispatch(setSelectedCity(null))} style={styles.resetButton}>
-                        <Text style={[textStyles.body16Light, { color: Colors.black }]}>{t('common.reset')}</Text>
+                showCheckbox && (fromWhere === "SEARCH" ? selectedCities.size > 0 : selectedCity !== null) ? (
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (fromWhere === "SEARCH") setSelectedCities(new Set());
+                            else dispatch(setSelectedCity(null));
+                        }}
+                        style={styles.resetButton}
+                    >
+                        <Text style={[textStyles.body16Light, { color: Colors.black }]}>
+                            {t('common.reset')}
+                        </Text>
                     </TouchableOpacity>
                 ) : null,
         });
-    }, [navigation, selectedCity, showCheckbox, t]);
+    }, [navigation, selectedCity, selectedCities, showCheckbox, fromWhere, t]);
 
     const onSelectCity = () => {
-    const currentSelectedCity = sortedCities.find((city: RegionOrCity) => city.id === selectedCity);
-    if (fromWhere === "REGISTRATION") {
-        dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
-        navigation.navigate("signup");
-    } else if (fromWhere === "EDIT") {
-        dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
-        navigation.goBack();
-    } else {
-        dispatch(updateSearchFields({ name: "city", value: currentSelectedCity }));
-        navigation.navigate("search");
-    }
-};
+        if (fromWhere === "SEARCH") {
+            const chosenCities = sortedCities.filter((city: RegionOrCity) =>
+                selectedCities.has(city.id)
+            );
+            const value = chosenCities.length === 1 ? chosenCities[0] : chosenCities;
+            dispatch(updateSearchFields({ name: "city", value }));
+            navigation.navigate("search");
+        } else {
+            // REGISTRATION и EDIT — без изменений
+            const currentSelectedCity = sortedCities.find((city: RegionOrCity) => city.id === selectedCity);
+            if (fromWhere === "REGISTRATION") {
+                dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
+                navigation.navigate("signup");
+            } else {
+                dispatch(updateFormData({ name: "city", value: currentSelectedCity }));
+                navigation.goBack();
+            }
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -196,13 +235,19 @@ const CityList = () => {
                 data={filteredItems}
                 renderItem={renderCity}
                 keyExtractor={(item) => String(item.id)}
-                contentContainerStyle={selectedCity !== null ? styles.listContentContainer : [{ paddingBottom: 40 }]}
+                contentContainerStyle={
+                    (fromWhere === "SEARCH" ? selectedCities.size > 0 : selectedCity !== null)
+                        ? styles.listContentContainer
+                        : [{ paddingBottom: 40 }]
+                }
             />
 
-            {selectedCity !== null && (
+            {(fromWhere === "SEARCH" ? selectedCities.size > 0 : selectedCity !== null) && (
                 <View style={styles.bottomButtonContainer}>
                     <Button style={[buttonStyles.activeFilledButton]} onPress={onSelectCity}>
-                        <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>{t('common.apply')}</ButtonText>
+                        <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>
+                            {t('common.apply')}
+                        </ButtonText>
                     </Button>
                 </View>
             )}
