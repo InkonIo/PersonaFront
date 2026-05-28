@@ -128,7 +128,8 @@ export const kz =
     "ratingWord_many": "бағалар",
     "alreadyRated": "Сіз бұл пайдаланушыны уже бағаладыңыз",
     "hiddenTitle": "Анкета скрыта",
-    "hiddenMessage": "Осы пайдаланушының анкета көрінбейді"
+    "hiddenMessage": "Осы пайдаланушының анкета көрінбейді",
+    "notSet": "Белгіленбеген"
   },
   "common": {
     "loading": "Жүктелуде...",
@@ -144,7 +145,10 @@ export const kz =
     "apply": "Қолдану",
     "socialNetworks": "Әлеуметтік желілер",
     "allRegions": "Барлық аймақтар",
-    "allCities": "Барлық қалалар"
+    "allCities": "Барлық қалалар",
+    "comingSoon": "Жақында",
+"comingSoonMsg": "Біз осы мүмкіндікті әзірлеп жатырмыз. Жақын арада қол жетімді болады!",
+"close": "Жабу"
   },
   "login": {
     "welcome": "Persona қауымдастығына қош келдіңіз",
@@ -282,7 +286,7 @@ export const kz =
     "desiredIncome": "Қалаған табыс $ бойынша",
     "from": "Бастап",
     "to": "Дейін",
-    "dreamJob": "Арманның жұмысы",
+    "dreamJob": "Армандаған жұмыс",
     "hobby": "Хобби",
     "placeholder": "Теруді бастаңыз",
     "edit": "Өңдеу",
@@ -295,7 +299,8 @@ export const kz =
     "title": "Тіркелу",
     "emailInvalid": "Жарамды email енгізіңіз",
     "invalidUrl": "Жарамды сілтеме енгізіңіз",
-    "noResults": "Нәтиже жоқ"
+    "noResults": "Нәтиже жоқ",
+    "usernameInvalid": "Дұрыс username енгізіңіз"
   },
   "home": {
     "daysInProject": "күн жобада",
@@ -383,6 +388,8 @@ export const kz =
 },
 "admin": {
     "title": "Админ Панель",
+    "search": "Іздеу",
+    "reset": "Қалпына келтіру",
     "error": "Қате",
     "done": "Дайын",
     "cancel": "Болдырмау",
@@ -390,7 +397,22 @@ export const kz =
     "tabs": {
         "users": "Пайдаланушылар",
         "feedbacks": "Кері байланыс",
-        "limits": "Шектеулер"
+        "limits": "Шектеулер",
+        "statistics": "Статистика"
+    },
+    "stats": {
+        "retry": "Қайталау",
+        "users": "Пайдаланушылар",
+        "totalUsers": "Барлығы",
+        "newToday": "Бүгін жаңалар",
+        "onlineNow": "Онлайн",
+        "mentors": "Менторлар",
+        "bannedUsers": "Бұғатталған",
+        "feedbacks": "Кері байланыс",
+        "totalFeedbacks": "Барлық пікірлер",
+        "unreadFeedbacks": "Оқылмаған",
+        "regByDay": "Күн бойынша тіркелулер",
+        "topCities": "Топ қалалар"
     },
     "users": {
         "loadError": "Админ ретінде кіргеніңізді тексеріңіз",
@@ -414,7 +436,8 @@ export const kz =
         "confirmAction": "Әрекет",
         "confirmDelete": "Жою",
         "confirmMsg": "Сенімдісіз бе?",
-        "confirm": "Иә"
+        "confirm": "Иә",
+        "searchPlaceholder": "Пайдаланушы ID бойынша іздеу...",
     },
     "feedbacks": {
         "loadError": "Хабарларды жүктеу мүмкін болмады",
@@ -428,7 +451,10 @@ export const kz =
         "replySentTitle": "✅ Дайын",
         "replySentMsg": "Жауап пайдаланушының email-іне жіберілді",
         "yourReply": "✉️ Сіздің жауабыңыз:",
-        "from": "Кімнен: @"
+        "from": "Кімнен: @",
+        "searchPlaceholder": "User ID бойынша іздеу...",
+        "notFound": "ID {{id}} пайдаланушысының пікірлері табылмады",
+        "found": "{{count}} {{word}} табылды · User ID {{id}}"
     },
     "limits": {
         "description": "Пайдаланушы тәулігіне қоя алатын бағалаулардың максималды саны.",
@@ -470,5 +496,18 @@ export const kz =
     "skip": "Өткізіп жіберу",
     "next": "Келесі",
     "start": "Бастау"
+  },
+  "feedbacks": {
+    "title": "Кері байланыс",
+    "subject": "Өтініш тақырыбы",
+    "subjectPlaceholder": "Мыс: Төлем мәселесі",
+    "message": "Хабарлама",
+    "messagePlaceholder": "Мәселеңізді толығырақ сипаттаңыз...",
+    "error": "Қате",
+    "fillAllFields": "Барлық өрістерді толтырыңыз",
+    "success": "Сәтті",
+    "messageSent": "Сіздің хабарламаңыз жіберілді",
+    "messageFailed": "Хабарлама жіберілмеді",
+    "send": "Жіберу"
   }
 }

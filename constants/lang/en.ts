@@ -106,7 +106,8 @@ export const en =
     "ratingWord_many": "ratings",
     "alreadyRated": "You have already rated this user",
     "hiddenTitle": "Profile is hidden",
-    "hiddenMessage": "This profile is currently hidden from users. The user may have chosen to hide their profile or it may be temporarily unavailable. Please try again later."
+    "hiddenMessage": "This profile is currently hidden from users. The user may have chosen to hide their profile or it may be temporarily unavailable. Please try again later.",
+    "notSet": "Not set"
   },
   "common": {
     "loading": "Loading...",
@@ -122,7 +123,10 @@ export const en =
     "apply": "Apply",
     "socialNetworks": "Social Networks",
     "allRegions": "All regions",
-    "allCities": "All cities"
+    "allCities": "All cities",
+    "comingSoon": "Coming Soon",
+"comingSoonMsg": "We're working on this feature. It will be available very soon!",
+"close": "Close"
   },
   "login": {
     "welcome": "Welcome to the Persona community",
@@ -296,7 +300,8 @@ export const en =
     "addLink": "Add link",
     "title": "Registration",
     "emailInvalid": "Enter a valid email address",
-    "invalidUrl": "Enter a valid URL"
+    "invalidUrl": "Enter a valid URL",
+    "usernameInvalid": "Enter a valid username"
   },
   "home": {
     "daysInProject": "days in project",
@@ -373,6 +378,8 @@ export const en =
 },
 "admin": {
     "title": "Admin Panel",
+    "search": "Search",
+    "reset": "Reset",
     "error": "Error",
     "done": "Done",
     "cancel": "Cancel",
@@ -380,48 +387,67 @@ export const en =
     "tabs": {
         "users": "Users",
         "feedbacks": "Feedback",
-        "limits": "Limits"
+        "limits": "Limits",
+        "statistics": "Statistics"
+    },
+    "stats": {
+        "retry": "Retry",
+        "users": "Users",
+        "totalUsers": "Total",
+        "newToday": "New today",
+        "onlineNow": "Online",
+        "mentors": "Mentors",
+        "bannedUsers": "Banned",
+        "feedbacks": "Feedback",
+        "totalFeedbacks": "Total feedback",
+        "unreadFeedbacks": "Unread",
+        "regByDay": "Registrations by day",
+        "topCities": "Top cities"
     },
     "users": {
-        "loadError": "Make sure you are logged in as admin",
-        "empty": "No users",
+        "loadError": "Make sure you are logged in as an administrator",
+        "empty": "No users found",
         "bannedLabel": "BANNED",
         "ban": "Ban",
         "unban": "Unban",
         "banTitle": "Ban user?",
         "unbanTitle": "Unban user?",
         "changeRole": "Change role",
-        "changeRoleMsg": "Assign {{name}} the role {{role}}?",
+        "changeRoleMsg": "Assign role {{role}} to {{name}}?",
         "assign": "Assign",
         "limit": "Limit",
         "individualLimit": "Individual limit",
         "individualLimitMsg": "Enter limit for {{name}} (empty = reset):",
-        "invalidLimit": "Enter a valid number",
-        "limitReset": "Limit reset",
+        "invalidLimit": "Please enter a valid number",
+        "limitReset": "Limit has been reset",
         "limitSet": "Limit set: {{limit}}",
         "delete": "Delete",
         "view": "View",
         "confirmAction": "Action",
         "confirmDelete": "Delete",
         "confirmMsg": "Are you sure?",
-        "confirm": "Yes"
+        "confirm": "Yes",
+        "searchPlaceholder": "Search by ID"
     },
     "feedbacks": {
-        "loadError": "Failed to load feedback",
-        "empty": "No feedback",
+        "loadError": "Failed to load messages",
+        "empty": "No messages yet",
         "markRead": "✓ Mark as read",
         "read": "Read",
         "reply": "Reply",
         "replyTitle": "Reply to user",
         "replyPlaceholder": "Write a reply...",
-        "sendEmail": "Send by email",
+        "sendEmail": "Send via Email",
         "replySentTitle": "✅ Done",
-        "replySentMsg": "Reply sent to user's email",
+        "replySentMsg": "Reply sent to the user's email",
         "yourReply": "✉️ Your reply:",
-        "from": "From: @"
+        "from": "From: @",
+        "searchPlaceholder": "Search by User ID...",
+        "notFound": "No feedback found for user ID {{id}}",
+        "found": "Found {{count}} {{word}} · User ID {{id}}"
     },
     "limits": {
-        "description": "Maximum number of ratings a user can give per day.",
+        "description": "Maximum number of ratings a user can submit per day.",
         "current": "Current global limit:",
         "quickPick": "Quick pick",
         "orCustom": "Or enter manually",
@@ -431,7 +457,7 @@ export const en =
         "rangeError": "Limit must be between 1 and 999",
         "saved": "Global limit set: {{limit}} ratings/day",
         "save": "Save limit",
-        "globalLimit": "Global ratings limit",
+        "globalLimit": "Global rating limit",
         "successTitle": "Success",
         "successMsg": "Limit updated"
     }
@@ -471,5 +497,18 @@ export const en =
     "skip": "Skip",
     "next": "Next",
     "start": "Get started"
+  },
+  "feedbacks": {
+    "title": "Feedback",
+    "subject": "Subject",
+    "subjectPlaceholder": "E.g.: Payment issue",
+    "message": "Message",
+    "messagePlaceholder": "Describe your problem in detail...",
+    "error": "Error",
+    "fillAllFields": "Fill in all fields",
+    "success": "Success",
+    "messageSent": "Your message has been sent",
+    "messageFailed": "Failed to send message",
+    "send": "Send"
   }
 }

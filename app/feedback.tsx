@@ -14,12 +14,14 @@ import {
 } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { Stack } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeftIcon } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { textStyles } from '@/constants/textStyles';
 import { instance } from '@/store/api';
 
 const FeedbackScreen = () => {
+    const { t } = useTranslation();
     const navigation = useNavigation();
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
@@ -27,7 +29,7 @@ const FeedbackScreen = () => {
 
     const handleSend = async () => {
         if (!subject.trim() || !message.trim()) {
-            Alert.alert('Ошибка', 'Заполните все поля');
+            Alert.alert(t('feedbacks.error'), t('feedbacks.fillAllFields'));
             return;
         }
 
@@ -37,11 +39,11 @@ const FeedbackScreen = () => {
                 subject,
                 message,
             });
-            Alert.alert('Успех', 'Ваше сообщение отправлено', [
+            Alert.alert(t('feedbacks.success'), t('feedbacks.messageSent'), [
                 { text: 'OK', onPress: () => navigation.goBack() },
             ]);
         } catch (error) {
-            Alert.alert('Ошибка', 'Не удалось отправить сообщение');
+            Alert.alert(t('feedbacks.error'), t('feedbacks.messageFailed'));
         } finally {
             setLoading(false);
         }
@@ -53,7 +55,7 @@ const FeedbackScreen = () => {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Обратная связь',
+                    title: t('feedbacks.title'),
                     headerLeft: () => (
                         <TouchableOpacity
                             onPress={() => navigation.goBack()}
@@ -91,25 +93,25 @@ const FeedbackScreen = () => {
                         showsVerticalScrollIndicator={false}
                     >
                         <Text style={[textStyles.body16Medium, { marginBottom: 8 }]}>
-                            Тема обращения
+                            {t('feedbacks.subject')}
                         </Text>
                         <TextInput
                             style={styles.input}
                             value={subject}
                             onChangeText={setSubject}
-                            placeholder="Напр: Проблема с оплатой"
+                            placeholder={t('feedbacks.subjectPlaceholder')}
                             placeholderTextColor={Colors.grayDark}
                             returnKeyType="next"
                         />
 
                         <Text style={[textStyles.body16Medium, { marginBottom: 8, marginTop: 16 }]}>
-                            Сообщение
+                            {t('feedbacks.message')}
                         </Text>
                         <TextInput
                             style={[styles.input, styles.textArea]}
                             value={message}
                             onChangeText={setMessage}
-                            placeholder="Опишите вашу проблему подробно..."
+                            placeholder={t('feedbacks.messagePlaceholder')}
                             placeholderTextColor={Colors.grayDark}
                             multiline
                             numberOfLines={6}
@@ -131,7 +133,7 @@ const FeedbackScreen = () => {
                             {loading ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.sendBtnText}>Отправить</Text>
+                                <Text style={styles.sendBtnText}>{t('feedbacks.send')}</Text>
                             )}
                         </TouchableOpacity>
                     </View>

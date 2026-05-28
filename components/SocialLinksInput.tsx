@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { X, Plus } from "lucide-react-native";
 import Colors from "@/constants/Colors";
-import { textStyles } from "@/constants/textStyles";
 import { useTranslation } from "react-i18next";
 
 interface SocialLink {
@@ -24,27 +23,23 @@ interface SocialLinksInputProps {
 }
 
 const SOCIAL_PLATFORMS = [
-    { id: 'telegram', name: 'Telegram', placeholder: 't.me/username', hint: 't.me/username' },
-    { id: 'instagram', name: 'Instagram', placeholder: 'instagram.com/username', hint: 'instagram.com/username' },
-    { id: 'linkedin', name: 'LinkedIn', placeholder: 'linkedin.com/in/username', hint: 'linkedin.com/in/username' },
+    { id: 'telegram', name: 'Telegram', placeholder: 'username', prefix: 'https://t.me/' },
+    { id: 'instagram', name: 'Instagram', placeholder: 'username', prefix: 'https://instagram.com/' },
+    { id: 'linkedin', name: 'LinkedIn', placeholder: 'username', prefix: 'https://linkedin.com/in/' },
 ];
 
-const isValidUrl = (url: string, platform: string): boolean => {
-    const clean = url.trim().replace(/^https?:\/\//, '').replace(/^www\./, '').toLowerCase();
-    switch (platform) {
-        case 'instagram': return /^instagram\.com\/[\w.]{1,30}\/?$/.test(clean);
-        case 'linkedin': return /^linkedin\.com\/(in|company)\/[\w-]{3,100}\/?$/.test(clean);
-        case 'telegram': return /^(t\.me|telegram\.me)\/[\w]{5,32}\/?$/.test(clean);
-        default: return false;
-    }
+const isValidUsername = (username: string): boolean => {
+    return /^[\w.\-]{2,50}$/.test(username.trim());
 };
 
-const normalizeUrl = (url: string): string => {
-    const trimmed = url.trim();
-    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-        return `https://${trimmed}`;
-    }
-    return trimmed;
+const buildUrl = (platform: string, username: string): string => {
+    const p = SOCIAL_PLATFORMS.find(p => p.id === platform);
+    return `${p?.prefix}${username.trim()}`;
+};
+
+const getUsername = (link: SocialLink): string => {
+    const p = SOCIAL_PLATFORMS.find(p => p.id === link.platform);
+    return link.url.replace(p?.prefix ?? '', '');
 };
 
 const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, isInvalid }) => {
@@ -61,7 +56,6 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, is
         });
     });
 
-    // Текущие значения инпутов для каждой платформы
     const [inputs, setInputs] = useState<Record<string, string>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [activePlatform, setActivePlatform] = useState<string>('telegram');
@@ -75,23 +69,21 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, is
     };
 
     const handleAddLink = (platform: string) => {
-        const url = inputs[platform] ?? '';
-        if (!url.trim()) return;
+        const username = inputs[platform] ?? '';
+        if (!username.trim()) return;
 
-        if (!isValidUrl(url, platform)) {
-            const platformInfo = SOCIAL_PLATFORMS.find(p => p.id === platform);
-            setErrors(prev => ({ ...prev, [platform]: `Введите ссылку вида: ${platformInfo?.hint}` }));
+        if (!isValidUsername(username)) {
+            setErrors(prev => ({ ...prev, [platform]: t('signup.usernameInvalid') }));
             return;
         }
 
-        const normalized = normalizeUrl(url);
-        const newLinks = [...links, { platform, url: normalized }];
+        const url = buildUrl(platform, username);
+        const newLinks = [...links, { platform, url }];
         setLinks(newLinks);
         setInputs(prev => ({ ...prev, [platform]: '' }));
         setErrors(prev => ({ ...prev, [platform]: '' }));
         onChange(newLinks.map(l => `${l.platform}:${l.url}`).join('|'));
 
-        // Переключаемся на следующую доступную платформу
         const remaining = SOCIAL_PLATFORMS.filter(p => !newLinks.map(l => l.platform).includes(p.id));
         if (remaining.length > 0) setActivePlatform(remaining[0].id);
     };
@@ -101,7 +93,6 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, is
         const newLinks = links.filter((_, i) => i !== index);
         setLinks(newLinks);
         onChange(newLinks.map(l => `${l.platform}:${l.url}`).join('|'));
-        // Возвращаем платформу в список доступных
         setActivePlatform(removed.platform);
     };
 
@@ -119,7 +110,9 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, is
                         </View>
                         <View style={styles.addedLinkInfo}>
                             <Text style={styles.platformName}>{platform?.name}</Text>
-                            <Text style={styles.linkUrl} numberOfLines={1}>{link.url}</Text>
+                            <Text style={styles.linkUrl} numberOfLines={1}>
+                                @{getUsername(link)}
+                            </Text>
                         </View>
                         <TouchableOpacity onPress={() => handleRemove(index)} style={styles.removeButton}>
                             <X size={18} color={Colors.grayDark} />
@@ -145,10 +138,12 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, is
                         ))}
                     </ScrollView>
 
-                    {/* Инпут для активной платформы */}
                     {availablePlatforms.filter(p => p.id === activePlatform).map(platform => (
                         <View key={platform.id}>
                             <View style={[styles.inputRow, errors[platform.id] ? styles.inputRowError : null]}>
+                                <Text style={styles.prefixText}>
+                                    {platform.prefix}
+                                </Text>
                                 <TextInput
                                     style={styles.input}
                                     placeholder={platform.placeholder}
@@ -157,7 +152,7 @@ const SocialLinksInput: React.FC<SocialLinksInputProps> = ({ value, onChange, is
                                     onChangeText={(text) => handleInputChange(platform.id, text)}
                                     autoCapitalize="none"
                                     autoCorrect={false}
-                                    keyboardType="url"
+                                    keyboardType="default"
                                     onSubmitEditing={() => handleAddLink(platform.id)}
                                     returnKeyType="done"
                                 />
@@ -205,11 +200,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    platformInitial: {
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: '600',
-    },
+    platformInitial: { color: Colors.white, fontSize: 16, fontWeight: '600' },
     addedLinkInfo: { flex: 1 },
     platformName: { fontSize: 12, color: Colors.grayDark, marginBottom: 2 },
     linkUrl: { fontSize: 14, color: Colors.black },
@@ -227,34 +218,32 @@ const styles = StyleSheet.create({
     tabText: { fontSize: 14, color: Colors.grayDark },
     tabTextActive: { color: Colors.white },
     inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.grayDark,
-    borderRadius: 24,
-    paddingLeft: 16,
-    paddingRight: 6,  // ← чуть больше отступ
-    height: 52,       // ← чуть выше, чтобы кнопка 36px влезала с зазором
-},
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: Colors.grayDark,
+        borderRadius: 24,
+        paddingLeft: 12,
+        paddingRight: 6,
+        height: 52,
+    },
     inputRowError: { borderColor: 'red' },
+    prefixText: {
+        fontSize: 12,
+        color: Colors.grayDark,
+        marginRight: 2,
+    },
     input: { flex: 1, fontSize: 14, color: Colors.black },
     addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.greenFirst,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',  // ← добавьте это
-},
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: Colors.greenFirst,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
     addButtonDisabled: { backgroundColor: '#ccc' },
-    addButtonText: { 
-    color: Colors.white, 
-    fontSize: 24, 
-    textAlign: 'center',
-    textAlignVertical: 'center',  // Android
-    includeFontPadding: false,
-},
     errorText: { fontSize: 12, color: 'red', marginLeft: 4 },
 });
 

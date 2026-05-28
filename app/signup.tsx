@@ -954,51 +954,28 @@ const confirmIOSDate = () => {
                                     </VStack>
 
                                     {/* ─── Статус ─── */}
-                                    <VStack space="xs">
-                                        <FormControl>
-                                            <FormControlLabel>
-                                                <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
-                                                    {t('home.status')}
-                                                </FormControlLabelText>
-                                            </FormControlLabel>
-                                            <Select
-                                                selectedValue={formData.status ? getLocalizedName(formData.status) : null}
-                                                onValueChange={value => onChangeSelect("status", value)}
-                                                key={formData.status?.id}
-                                            >
-                                                <SelectTrigger variant="rounded" size="md">
-                                                    <SelectInput placeholder={t('signup.selectFromList')} />
-                                                    {formData.status ? (
-    <TouchableOpacity onPress={() => handleChange("status", null)} style={{ paddingRight: 12 }}>
-        <InputIcon as={XIcon} />
-    </TouchableOpacity>
-) : (
-    <SelectIcon as={ChevronDownIcon} mr="$3"/>
-)}
-                                                </SelectTrigger>
-                                                <SelectPortal>
-                                                    <SelectBackdrop />
-                                                    <SelectContent>
-                                                        <SelectDragIndicatorWrapper>
-                                                            <SelectDragIndicator />
-                                                        </SelectDragIndicatorWrapper>
-                                                        <FlatList
-                                                            data={statuses}
-                                                            renderItem={({ item }) => (
-                                                                <SelectItem
-                                                                    label={getLocalizedName(item)}
-                                                                    value={item.id}
-                                                                    key={item.id}
-                                                                />
-                                                            )}
-                                                            keyExtractor={item => String(item.id)}
-                                                            style={{ width: '100%' }}
-                                                        />
-                                                    </SelectContent>
-                                                </SelectPortal>
-                                            </Select>
-                                        </FormControl>
-                                    </VStack>
+<VStack space="xs">
+    <FormControl isDisabled={true}>
+        <FormControlLabel>
+            <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
+                {t('home.status')}
+            </FormControlLabelText>
+        </FormControlLabel>
+        <Select
+            selectedValue={formData.status ? getLocalizedName(formData.status) : null}
+            isDisabled={true}
+        >
+            <SelectTrigger variant="rounded" size="md">
+                <SelectInput placeholder={t('signup.selectFromList')} />
+                <SelectIcon as={ChevronDownIcon} mr="$3"/>
+                {/* крестик убираем — юзер не может менять */}
+            </SelectTrigger>
+            <SelectPortal>
+                {/* ...содержимое можно оставить или убрать — всё равно не откроется */}
+            </SelectPortal>
+        </Select>
+    </FormControl>
+</VStack>
                                 </VStack>
                             </View>
                         </View>

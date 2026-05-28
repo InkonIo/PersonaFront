@@ -254,16 +254,14 @@ const Page = () => {
                                     >
                                         {`${item.fullName}, ${item.age}`}
                                     </Text>
-                                    {item?.status && (
-                                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', marginTop: 4, marginBottom: 4 }}>
-                                            <Text style={[textStyles.body12Light, { color: Colors.text }]}>{t('home.status')}:</Text>
-                                            <Chips
-                                                case="fill"
-                                                text={getLocalizedStatus(item.status, i18n.language)}
-                                                style={{ marginLeft: 8, width: '50%' }}
-                                            />
-                                        </View>
-                                    )}
+                                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', marginTop: 4, marginBottom: 4 }}>
+    <Text style={[textStyles.body12Light, { color: Colors.text }]}>{t('home.status')}:</Text>
+    <Chips
+        case="fill"
+        text={item?.status ? getLocalizedStatus(item.status, i18n.language) : t('userProfile.notSet')}
+        style={{ marginLeft: 8, width: '50%' }}
+    />
+</View>
                                     <Text style={[textStyles.body12Light, { color: Colors.text, marginTop: 8, fontWeight: '700' }]}>
                                         {`${t('home.rating')} ${item.rating}% (${item.ratingCount} ${getCorrectRatingWord(item.ratingCount, t, i18n.language)})`}
                                     </Text>

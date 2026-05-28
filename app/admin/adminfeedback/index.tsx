@@ -21,6 +21,20 @@ type Feedback = {
     userLogin?: string;
 };
 
+// ─── Design tokens (те же что в adminpanel) ───────────────────────────────────
+const T = {
+    roseLight:   '#FEF2F2',
+    roseBorder:  '#FECACA',
+    roseText:    '#B91C1C',
+    sageLight:   '#F0FDF4',
+    sageMuted:   '#DCFCE7',
+    sageText:    '#166534',
+    slateMuted:  '#E2E8F0',
+    bg:          '#F5F7FA',
+    text:        '#1E293B',
+    textSoft:    '#64748B',
+};
+
 // ─── Хук для модалки ошибок ───────────────────────────────────────────────────
 const useErrorModal = () => {
     const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
@@ -43,7 +57,7 @@ const ErrorModal = ({
         <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
                 <Text style={styles.modalTitle}>{error?.title}</Text>
-                <Text style={{ color: '#64748B', marginBottom: 16, lineHeight: 20 }}>
+                <Text style={{ color: T.textSoft, marginBottom: 16, lineHeight: 20 }}>
                     {error?.message}
                 </Text>
                 <TouchableOpacity
@@ -70,24 +84,50 @@ const formatDate = (createdAt: any): string => {
     return String(createdAt);
 };
 
+// ─── Склонение слова "отзыв" ──────────────────────────────────────────────────
+const pluralFeedback = (n: number): string => {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return 'отзыв';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'отзыва';
+    return 'отзывов';
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function AdminFeedbackScreen() {
     const { t } = useTranslation();
 
-    const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [markingId, setMarkingId] = useState<number | null>(null);
+    const [feedbacks, setFeedbacks]     = useState<Feedback[]>([]);
+    const [loading, setLoading]         = useState(false);
+    const [refreshing, setRefreshing]   = useState(false);
+    const [markingId, setMarkingId]     = useState<number | null>(null);
 
-    // Reply modal state
-    const [replyingId, setReplyingId] = useState<number | null>(null);
-    const [replyText, setReplyText] = useState('');
+    // Reply modal
+    const [replyingId, setReplyingId]   = useState<number | null>(null);
+    const [replyText, setReplyText]     = useState('');
     const [sendingReply, setSendingReply] = useState(false);
 
     const { errorModal, showError, hideError } = useErrorModal();
     const [successModal, setSuccessModal] = useState<{ title: string; message: string } | null>(null);
+
+    // ── 1.2 Поиск по User ID (локальная фильтрация) ───────────────────────────
+    const [searchId, setSearchId]         = useState('');
+    const [searchResult, setSearchResult] = useState<Feedback[] | null | 'not_found'>(null);
+
+    const handleSearchById = () => {
+        const trimmed = searchId.trim();
+        if (!trimmed) { setSearchResult(null); return; }
+        const filtered = feedbacks.filter(f => f.userId.toString() === trimmed);
+        setSearchResult(filtered.length > 0 ? filtered : 'not_found');
+    };
+
+    const handleClearSearch = () => {
+        setSearchId('');
+        setSearchResult(null);
+    };
+    // ─────────────────────────────────────────────────────────────────────────
 
     // ── Fetch ─────────────────────────────────────────────────────────────────
     const fetchFeedbacks = useCallback(async () => {
@@ -115,7 +155,12 @@ export default function AdminFeedbackScreen() {
         setMarkingId(id);
         try {
             await instance.post(`api/admin/feedbacks/${id}/read`);
-            setFeedbacks(prev => prev.map(f => f.id === id ? { ...f, isRead: true } : f));
+            const updater = (list: Feedback[]) =>
+                list.map(f => f.id === id ? { ...f, isRead: true } : f);
+            setFeedbacks(prev => updater(prev));
+            if (searchResult && searchResult !== 'not_found') {
+                setSearchResult(updater(searchResult));
+            }
         } catch (e: any) {
             showError(t('admin.error'), e?.response?.data?.message ?? t('admin.unknownError'));
         } finally {
@@ -123,7 +168,7 @@ export default function AdminFeedbackScreen() {
         }
     };
 
-    // ── Close reply modal — клавиатура сначала, потом Modal ──────────────────
+    // ── Close reply modal ─────────────────────────────────────────────────────
     const closeReplyModal = () => {
         Keyboard.dismiss();
         setTimeout(() => {
@@ -133,56 +178,55 @@ export default function AdminFeedbackScreen() {
     };
 
     // ── Send reply ────────────────────────────────────────────────────────────
-    // Изменения в sendReply:
-const sendReply = async () => {
-    if (!replyText.trim() || sendingReply) return;
+    const sendReply = async () => {
+        if (!replyText.trim() || sendingReply) return;
 
-    const id = replyingId;
-    const text = replyText.trim();
+        const id   = replyingId;
+        const text = replyText.trim();
 
-    setSendingReply(true);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15_000);
+        setSendingReply(true);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15_000);
 
-    try {
-        await instance.post(
-            `api/admin/feedbacks/${id}/reply`,
-            { message: text },
-            { signal: controller.signal },
-        );
+        try {
+            await instance.post(
+                `api/admin/feedbacks/${id}/reply`,
+                { message: text },
+                { signal: controller.signal },
+            );
 
-        setFeedbacks(prev =>
-            prev.map(f => f.id === id
-                ? { ...f, isRead: true, adminReply: text, repliedAt: new Date().toISOString() }
-                : f
-            ),
-        );
+            const updater = (list: Feedback[]) =>
+                list.map(f => f.id === id
+                    ? { ...f, isRead: true, adminReply: text, repliedAt: new Date().toISOString() }
+                    : f
+                );
 
-        // ❌ Убери closeReplyModal() здесь — не закрывай сам
-        // Вместо этого просто сбрось текст, Modal закроется через onDismiss
-        setReplyText('');
-        setReplyingId(null);   // ← закрываем Modal синхронно
+            setFeedbacks(prev => updater(prev));
+            if (searchResult && searchResult !== 'not_found') {
+                setSearchResult(updater(searchResult));
+            }
 
-        // ✅ Показываем success ПОСЛЕ того как replyingId стал null
-        // используем setTimeout чтобы дать Modal время анимации закрыться
-        setTimeout(() => {
-            setSuccessModal({
-                title: t('admin.feedbacks.replySentTitle'),
-                message: t('admin.feedbacks.replySentMsg'),
-            });
-        }, Platform.OS === 'android' ? 350 : 100);
+            setReplyText('');
+            setReplyingId(null);
 
-    } catch (e: any) {
-        if (e?.code === 'ERR_CANCELED' || e?.name === 'AbortError') {
-            showError(t('admin.error'), t('admin.feedbacks.timeout'));
-        } else {
-            showError(t('admin.error'), e?.response?.data?.message ?? t('admin.unknownError'));
+            setTimeout(() => {
+                setSuccessModal({
+                    title: t('admin.feedbacks.replySentTitle'),
+                    message: t('admin.feedbacks.replySentMsg'),
+                });
+            }, Platform.OS === 'android' ? 350 : 100);
+
+        } catch (e: any) {
+            if (e?.code === 'ERR_CANCELED' || e?.name === 'AbortError') {
+                showError(t('admin.error'), t('admin.feedbacks.timeout'));
+            } else {
+                showError(t('admin.error'), e?.response?.data?.message ?? t('admin.unknownError'));
+            }
+        } finally {
+            clearTimeout(timeout);
+            setSendingReply(false);
         }
-    } finally {
-        clearTimeout(timeout);
-        setSendingReply(false);
-    }
-};
+    };
 
     // ── Loading state ─────────────────────────────────────────────────────────
     if (loading && feedbacks.length === 0) {
@@ -192,6 +236,12 @@ const sendReply = async () => {
             </View>
         );
     }
+
+    // Данные для списка
+    const listData: Feedback[] =
+        searchResult && searchResult !== 'not_found'
+            ? searchResult
+            : feedbacks;
 
     // ── Render item ───────────────────────────────────────────────────────────
     const renderItem = ({ item }: { item: Feedback }) => (
@@ -209,7 +259,6 @@ const sendReply = async () => {
                 {item.message}
             </Text>
 
-            {/* Показываем ранее отправленный ответ */}
             {item.adminReply && (
                 <View style={styles.replyPreview}>
                     <Text style={styles.replyPreviewLabel}>
@@ -249,15 +298,72 @@ const sendReply = async () => {
     // ── UI ────────────────────────────────────────────────────────────────────
     return (
         <>
+            {/* ── 1.2 Поиск по User ID ────────────────────────────────────── */}
+            <View style={srStyles.wrapper}>
+                <View style={srStyles.row}>
+                    <TextInput
+                        style={srStyles.input}
+                        value={searchId}
+                        onChangeText={v => {
+                            setSearchId(v.replace(/[^0-9]/g, ''));
+                            if (!v) setSearchResult(null);
+                        }}
+                        placeholder={t('admin.feedbacks.searchPlaceholder')}
+                        keyboardType="numeric"
+                        placeholderTextColor={T.textSoft}
+                        returnKeyType="search"
+                        onSubmitEditing={handleSearchById}
+                    />
+                    {searchId.length > 0 && (
+                        <TouchableOpacity onPress={handleClearSearch} style={srStyles.clearBtn}>
+                            <Text style={{ color: T.textSoft, fontSize: 16 }}>✕</Text>
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                        style={[srStyles.searchBtn, !searchId.trim() && { opacity: 0.5 }]}
+                        onPress={handleSearchById}
+                        disabled={!searchId.trim()}
+                    >
+                        <Text style={srStyles.searchBtnText}>{t('admin.search')}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {searchResult === 'not_found' && (
+                    <View style={srStyles.notFound}>
+                        <Text style={{ color: T.roseText, fontWeight: '600', fontSize: 13 }}>
+                            {t('admin.feedbacks.notFound', { id: searchId })}
+                        </Text>
+                    </View>
+                )}
+
+                {searchResult && searchResult !== 'not_found' && (
+                    <View style={srStyles.resultBanner}>
+                        <Text style={{ color: T.sageText, fontSize: 12, fontWeight: '600', flex: 1 }}>
+                            ✓ {t('admin.feedbacks.found', {
+                                count: searchResult.length,
+                                word: pluralFeedback(searchResult.length),
+                                id: searchId,
+                            })}
+                        </Text>
+                        <TouchableOpacity onPress={handleClearSearch}>
+                            <Text style={{ color: T.textSoft, fontSize: 12 }}>{t('admin.reset')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </View>
+            {/* ─────────────────────────────────────────────────────────────── */}
+
             <FlatList
-                data={feedbacks}
+                data={listData}
                 keyExtractor={(item) => item.id.toString()}
                 refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        tintColor={Colors.greenFirst}
-                    />
+                    searchResult
+                        ? undefined
+                        : <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={Colors.greenFirst}
+                          />
                 }
                 contentContainerStyle={{ padding: 16 }}
                 renderItem={renderItem}
@@ -328,10 +434,7 @@ const sendReply = async () => {
                 </KeyboardAvoidingView>
             </Modal>
 
-            {/* ── Error modal ─────────────────────────────────────────────── */}
             <ErrorModal error={errorModal} onClose={hideError} okLabel="OK" />
-
-            {/* ── Success modal ───────────────────────────────────────────── */}
             <ErrorModal
                 error={successModal}
                 onClose={() => setSuccessModal(null)}
@@ -341,7 +444,71 @@ const sendReply = async () => {
     );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── Стили поиска (идентичны srStyles в adminpanel) ──────────────────────────
+const srStyles = StyleSheet.create({
+    wrapper: {
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 8,
+        backgroundColor: 'white',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: T.slateMuted,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    input: {
+        flex: 1,
+        height: 42,
+        borderWidth: 1,
+        borderColor: T.slateMuted,
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        fontSize: 14,
+        color: T.text,
+        fontFamily: 'futuraPTLight',
+        backgroundColor: T.bg,
+    },
+    clearBtn: {
+        padding: 6,
+    },
+    searchBtn: {
+        backgroundColor: Colors.greenFirst,
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        height: 42,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    searchBtnText: {
+        color: 'white',
+        fontWeight: '700',
+        fontSize: 13,
+    },
+    notFound: {
+        marginTop: 8,
+        padding: 10,
+        backgroundColor: T.roseLight,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: T.roseBorder,
+    },
+    resultBanner: {
+        marginTop: 8,
+        padding: 10,
+        backgroundColor: T.sageLight,
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: T.sageMuted,
+    },
+});
+
+// ─── Основные стили ───────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
     center: {
         flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40,

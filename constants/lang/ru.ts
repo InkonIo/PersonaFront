@@ -113,6 +113,7 @@ export const ru = {
     "ratingWord_one": "оценка",
     "ratingWord_few": "оценки",
     "ratingWord_many": "оценок",
+    "notSet": "Не задан",
     "alreadyRated": "Вы уже оценили этого пользователя",
     "hiddenProfile": "Профиль скрыт",
     "hiddenMessage": "Пользователь скрыл свой профиль от других участников. Вы не можете просматривать его анкету и ставить оценку.",
@@ -132,7 +133,10 @@ export const ru = {
     "apply": "Применить",
     "socialNetworks": "Социальные сети",
     "allRegions": "Все регионы",
-    "allCities": "Выбрать все"
+    "allCities": "Выбрать все",
+    "comingSoon": "Скоро появится",
+    "comingSoonMsg": "Мы работаем над этой функцией. Совсем скоро она будет доступна!",
+    "close": "Закрыть"
   },
   "login": {
     "welcome": "Добро пожаловать в сообщество Persona",
@@ -283,7 +287,8 @@ export const ru = {
     "addLink": "Добавить ссылку",
     "title": "Регистрация",
     "emailInvalid": "Введите корректный email",
-    "invalidUrl": "Введите корректную ссылку"
+    "invalidUrl": "Введите корректную ссылку",
+    "usernameInvalid": "Введите корректный username"
   },
   "home": {
     "daysInProject": "дней в проекте",
@@ -293,6 +298,19 @@ export const ru = {
     "hello": "Привет",
     "search": "Поиск",
     "noProfiles": "Профили не найдены"
+  },
+  "feedbacks": {
+    "title": "Обратная связь",
+    "subject": "Тема обращения",
+    "subjectPlaceholder": "Напр: Проблема с оплатой",
+    "message": "Сообщение",
+    "messagePlaceholder": "Опишите вашу проблему подробно...",
+    "error": "Ошибка",
+    "fillAllFields": "Заполните все поля",
+    "success": "Успех",
+    "messageSent": "Ваше сообщение отправлено",
+    "messageFailed": "Не удалось отправить сообщение",
+    "send": "Отправить"
   },
   "search": {
     "fillFields": "Заполните поля по которым хотите начать поиск",
@@ -360,7 +378,9 @@ export const ru = {
     "hidden": "Скрыт"
 },
 "admin": {
-    "title": "Панель Aдминистратора",
+    "title": "Панель Администратора",
+    "search": "Найти",
+    "reset": "Сбросить",
     "error": "Ошибка",
     "done": "Готово",
     "cancel": "Отмена",
@@ -368,60 +388,79 @@ export const ru = {
     "tabs": {
         "users": "Пользователи",
         "feedbacks": "Обратная связь",
-        "limits": "Лимиты"
+        "limits": "Лимиты",
+        "statistics": "Статистика"
     },
+    "stats": {
+    "retry": "Повторить",
+    "users": "Пользователи",
+    "totalUsers": "Всего",
+    "newToday": "Новых сегодня",
+    "onlineNow": "Онлайн",
+    "mentors": "Менторов",
+    "bannedUsers": "Заблокировано",
+    "feedbacks": "Обратная связь",
+    "totalFeedbacks": "Всего отзывов",
+    "unreadFeedbacks": "Непрочитанных",
+    "regByDay": "Регистрации по дням",
+    "topCities": "Топ городов"
+},
     "users": {
-        "loadError": "Проверьте, что вы залогинены как админ",
-        "empty": "Нет пользователей",
+        "loadError": "Убедитесь, что вы вошли как администратор",
+        "empty": "Пользователей нет",
         "bannedLabel": "ЗАБЛОКИРОВАН",
-        "ban": "Забанить",
-        "unban": "Разбанить",
+        "ban": "Заблокировать",
+        "unban": "Разблокировать",
         "banTitle": "Заблокировать?",
         "unbanTitle": "Разблокировать?",
         "changeRole": "Изменить роль",
-        "changeRoleMsg": "Назначить {{name}} роль {{role}}?",
+        "changeRoleMsg": "Назначить роль {{role}} пользователю {{name}}?",
         "assign": "Назначить",
         "limit": "Лимит",
         "individualLimit": "Индивидуальный лимит",
-        "individualLimitMsg": "Введите лимит для {{name}} (пусто = сброс):",
+        "individualLimitMsg": "Введите лимит для {{name}} (пусто = сбросить):",
         "invalidLimit": "Введите корректное число",
         "limitReset": "Лимит сброшен",
         "limitSet": "Лимит установлен: {{limit}}",
         "delete": "Удалить",
         "view": "Просмотр",
         "confirmAction": "Действие",
-        "confirmDelete": "Удаление",
+        "confirmDelete": "Удалить",
         "confirmMsg": "Вы уверены?",
-        "confirm": "Да"
+        "confirm": "Да",
+        "searchPlaceholder": "Найти по ID",
     },
     "feedbacks": {
-        "loadError": "Не удалось загрузить обращения",
-        "empty": "Нет обращений",
+        "loadError": "Не удалось загрузить сообщения",
+        "empty": "Сообщений нет",
         "markRead": "✓ Прочитано",
         "read": "Прочитано",
         "reply": "Ответить",
         "replyTitle": "Ответ пользователю",
         "replyPlaceholder": "Напишите ответ...",
-        "sendEmail": "Отправить на email",
+        "sendEmail": "Отправить на Email",
         "replySentTitle": "✅ Готово",
         "replySentMsg": "Ответ отправлен на email пользователя",
-        "yourReply": "Ваш ответ:",
-        "from": "От: @"
+        "yourReply": "✉️ Ваш ответ:",
+        "from": "От: @",
+        "searchPlaceholder": "Найти по User ID...",
+        "notFound": "Отзывы пользователя с ID {{id}} не найдены",
+        "found": "Найдено {{count}} {{word}} · User ID {{id}}"
     },
     "limits": {
-        "description": "Максимальное количество оценок, которые пользователь может поставить за сутки.",
+        "description": "Максимальное количество оценок, которое пользователь может поставить за сутки.",
         "current": "Текущий глобальный лимит:",
         "quickPick": "Быстрый выбор",
         "orCustom": "Или введите вручную",
         "placeholder": "Например, 30",
         "newLimit": "Новый лимит:",
-        "perDay": "{{limit}} чел/сутки",
+        "perDay": "{{limit}} в сутки",
         "rangeError": "Лимит должен быть от 1 до 999",
         "saved": "Глобальный лимит установлен: {{limit}} оценок/сутки",
         "save": "Сохранить лимит",
         "globalLimit": "Глобальный лимит оценок",
-        "successTitle": "Успех",
-        "successMsg": "Лимит обновлен"
+        "successTitle": "Успешно",
+        "successMsg": "Лимит обновлён"
     }
 },
 "settings": {

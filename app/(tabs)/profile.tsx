@@ -51,6 +51,7 @@ const Page = () => {
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [showBottomSheet, setShowBottomSheet] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [showComingSoonModal, setShowComingSoonModal] = useState(false);
 
     const isAdmin = userInfo?.role === 'admin';
 
@@ -150,13 +151,13 @@ return (
                 {/* ─── Action buttons ─── */}
                 <View style={{ marginHorizontal: 16, marginTop: 32 }}>
                     <Button
-                        style={[buttonStyles.activeFilledButton, { marginBottom: 16 }]}
-                        onPress={() => navigation.dispatch(StackActions.push("ratingHistory"))}
-                    >
-                        <ButtonText style={{ color: Colors.white }}>
-                            {t('profile.rating')}
-                        </ButtonText>
-                    </Button>
+    style={[buttonStyles.activeFilledButton, { marginBottom: 16 }]}
+    onPress={() => setShowComingSoonModal(true)}
+>
+    <ButtonText style={{ color: Colors.white }}>
+        {t('profile.rating')}
+    </ButtonText>
+</Button>
                     <Button
                         style={[buttonStyles.activeFilledButton]}
                         onPress={handleOpenPress}
@@ -297,6 +298,40 @@ return (
                 />
             )}
         </View>
+
+        {showComingSoonModal && (
+    <View style={{
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 999,
+    }}>
+        <View style={{
+            backgroundColor: 'white',
+            borderRadius: 20,
+            padding: 28,
+            marginHorizontal: 32,
+            alignItems: 'center',
+        }}>
+            <Text style={[textStyles.body20Medium, { color: Colors.text, marginBottom: 8 }]}>
+                🚀
+            </Text>
+            <Text style={[textStyles.body20Medium, { color: Colors.text, marginBottom: 8, textAlign: 'center' }]}>
+                {t('common.comingSoon')}
+            </Text>
+            <Text style={[textStyles.body16Light, { color: Colors.grayDark, textAlign: 'center', marginBottom: 24 }]}>
+                {t('common.comingSoonMsg')}
+            </Text>
+            <Button
+                style={[buttonStyles.activeFilledButton]}
+                onPress={() => setShowComingSoonModal(false)}
+            >
+                <ButtonText style={{ color: Colors.white }}>{t('common.close')}</ButtonText>
+            </Button>
+        </View>
+    </View>
+)}
     </SafeAreaView>
 );
 };

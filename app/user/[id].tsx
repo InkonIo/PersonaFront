@@ -183,22 +183,14 @@ const Page = () => {
                                 <Text style={[textStyles.body16Medium, { color: Colors.text, marginTop: 8 }]}>
                                     {`${userInfoById.fullName}, ${userInfoById.age}`}
                                 </Text>
-                                {userInfoById.status && (
-                                    <View style={{ flex: 1, flexDirection: "row", alignItems: "center", marginTop: 4, marginBottom: 4 }}>
-                                        <Text style={[textStyles.body12Light, { color: Colors.text }]}>{t('home.status')}:</Text>
-                                        {userInfoById.status ? (
-                                            <Chips
-                                                case="fill"
-                                                text={getLocalizedField(userInfoById.status, lang)}
-                                                style={{ marginLeft: 8, flex: 1 }}
-                                            />
-                                        ) : (
-                                            <Text style={[textStyles.body12Light, { color: Colors.grayDark, marginLeft: 8 }]}>
-                                                {t('userProfile.notSpecified')}
-                                            </Text>
-                                        )}
-                                    </View>
-                                )}
+                                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", marginTop: 4, marginBottom: 4 }}>
+    <Text style={[textStyles.body12Light, { color: Colors.text }]}>{t('home.status')}:</Text>
+    <Chips
+        case="fill"
+        text={userInfoById.status ? getLocalizedField(userInfoById.status, lang) : t('userProfile.notSet')}
+        style={{ marginLeft: 8, flex: 1 }}
+    />
+</View>
                                 <Text style={[textStyles.body12Light, { color: Colors.text, marginTop: 8 }]}>
                                     {`${t('home.rating')}: ${userInfoById.rating}% (${userInfoById.ratingCount} ${getCorrectRatingWord(userInfoById.ratingCount, t, lang)})`}
                                 </Text>

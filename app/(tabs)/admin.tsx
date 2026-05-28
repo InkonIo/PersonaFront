@@ -14,7 +14,8 @@ import { useRouter } from 'expo-router';
 import { KeyboardAvoidingView } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import AdminFeedbackScreen from '../admin/adminfeedback'; // Импортируем экран отзывов
+import AdminFeedbackScreen from '../admin/adminfeedback';
+import AdminStatisticsScreen from '../admin/adminStatistics/adminStatistics';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -26,6 +27,7 @@ type AdminUser = {
     email: string;
     role: string;
     banned: boolean;
+    lastLogin?: string | null;
 };
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -54,9 +56,40 @@ const T = {
     bg:          '#F5F7FA',
     text:        '#1E293B',
     textSoft:    '#64748B',
+
+    online:      '#22C55E', // Зеленый
+    offline:     '#EF4444', // Красный (было #94A3B8)
 };
 
-// ─── Кастомный хук для модалки ошибок ────────────────────────────────────────
+// ─── Утилита: онлайн если lastLogin < 5 минут назад ──────────────────────────
+const isOnline = (lastLogin?: string | null): boolean => {
+    if (!lastLogin) return false;
+    const diff = Date.now() - new Date(lastLogin).getTime();
+    return diff < 5 * 60 * 1000;
+};
+
+// ─── Утилита: форматирование lastLogin ───────────────────────────────────────
+const fmtLastLogin = (lastLogin?: string | null): string => {
+    if (!lastLogin) return '—';
+    try {
+        const date = new Date(lastLogin);
+        const now  = new Date();
+        const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (diff < 60)          return `${diff}с назад`;
+        if (diff < 3600)        return `${Math.floor(diff / 60)}м назад`;
+        if (diff < 86400)       return `${Math.floor(diff / 3600)}ч назад`;
+        if (diff < 86400 * 7)   return `${Math.floor(diff / 86400)}д назад`;
+
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit', month: '2-digit', year: '2-digit',
+        });
+    } catch {
+        return '—';
+    }
+};
+
+// ─── Хук для модалки ошибок ───────────────────────────────────────────────────
 const useErrorModal = () => {
     const [errorModal, setErrorModal] = useState<{ title: string; message: string } | null>(null);
     const showError = (title: string, message: string) => setErrorModal({ title, message });
@@ -64,11 +97,9 @@ const useErrorModal = () => {
     return { errorModal, showError, hideError };
 };
 
-// ─── Компонент модалки ошибок ─────────────────────────────────────────────────
+// ─── Модалка ошибок ───────────────────────────────────────────────────────────
 const ErrorModal = ({
-    error,
-    onClose,
-    okLabel,
+    error, onClose, okLabel,
 }: {
     error: { title: string; message: string } | null;
     onClose: () => void;
@@ -92,7 +123,7 @@ const ErrorModal = ({
     </Modal>
 );
 
-// ─── Компонент модалки подтверждения ─────────────────────────────────────────
+// ─── Модалка подтверждения ────────────────────────────────────────────────────
 type ConfirmModalState = {
     title: string;
     message: string;
@@ -102,9 +133,7 @@ type ConfirmModalState = {
 } | null;
 
 const ConfirmModal = ({
-    confirm,
-    onClose,
-    cancelLabel,
+    confirm, onClose, cancelLabel,
 }: {
     confirm: ConfirmModalState;
     onClose: () => void;
@@ -157,18 +186,41 @@ const UsersTab = () => {
 
     const { errorModal, showError, hideError } = useErrorModal();
     const [confirmModal, setConfirmModal] = useState<ConfirmModalState>(null);
-
     const [limitModal, setLimitModal] = useState<{ user: AdminUser } | null>(null);
     const [limitValue, setLimitValue] = useState('');
     const [successModal, setSuccessModal] = useState<{ title: string; message: string } | null>(null);
 
+    // ── Поиск по ID ───────────────────────────────────────────────────────────
+    const [searchId, setSearchId]         = useState('');
+    const [searchResult, setSearchResult] = useState<AdminUser | null | 'not_found'>(null);
+    const [searchLoading, setSearchLoading] = useState(false);
+
+    const handleSearchById = async () => {
+        const trimmed = searchId.trim();
+        if (!trimmed) { setSearchResult(null); return; }
+        setSearchLoading(true);
+        try {
+            const res = await instance.get(`api/admin/users/${trimmed}`);
+            setSearchResult(res.data);
+        } catch {
+            setSearchResult('not_found');
+        } finally {
+            setSearchLoading(false);
+        }
+    };
+
+    const handleClearSearch = () => {
+        setSearchId('');
+        setSearchResult(null);
+    };
+
+    // ── Fetch ─────────────────────────────────────────────────────────────────
     const fetchUsers = useCallback(async () => {
         try {
             setLoading(true);
             const res = await instance.get('api/admin/users');
             setUsers(res.data.filter((u: AdminUser) => u.id !== myId));
         } catch (e) {
-            console.error(e);
             showError(t('admin.error'), t('admin.users.loadError'));
         } finally {
             setLoading(false);
@@ -183,6 +235,7 @@ const UsersTab = () => {
 
     useEffect(() => { fetchUsers(); }, []);
 
+    // ── Actions ───────────────────────────────────────────────────────────────
     const handleBan = (user: AdminUser) => {
         const action = user.banned ? 'unban' : 'ban';
         setConfirmModal({
@@ -193,13 +246,9 @@ const UsersTab = () => {
             onConfirm: async () => {
                 setActionLoading(user.id);
                 try {
-                    const res = await instance.post(`api/admin/users/${user.id}/${action}`);
-                    console.log('✅ Ban OK:', res.status, res.data);
-                    setUsers(prev =>
-                        prev.map(u => u.id === user.id ? { ...u, banned: !u.banned } : u)
-                    );
+                    await instance.post(`api/admin/users/${user.id}/${action}`);
+                    setUsers(prev => prev.map(u => u.id === user.id ? { ...u, banned: !u.banned } : u));
                 } catch (e: any) {
-                    console.log('❌ Ban ERROR:', e?.response?.status, e?.response?.data, e?.config?.url);
                     showError(t('admin.error'), e?.response?.data?.message ?? t('admin.unknownError'));
                 } finally {
                     setActionLoading(null);
@@ -217,12 +266,8 @@ const UsersTab = () => {
             onConfirm: async () => {
                 setActionLoading(user.id);
                 try {
-                    await instance.post(`api/admin/users/${user.id}/role`, null, {
-                        params: { role: newRole }
-                    });
-                    setUsers(prev =>
-                        prev.map(u => u.id === user.id ? { ...u, role: newRole } : u)
-                    );
+                    await instance.post(`api/admin/users/${user.id}/role`, null, { params: { role: newRole } });
+                    setUsers(prev => prev.map(u => u.id === user.id ? { ...u, role: newRole } : u));
                 } catch (e: any) {
                     showError(t('admin.error'), e?.response?.data?.message ?? t('admin.unknownError'));
                 } finally {
@@ -241,14 +286,9 @@ const UsersTab = () => {
             onConfirm: async () => {
                 setActionLoading(user.id);
                 try {
-                    const res = await instance.delete(`api/admin/users/${user.id}`);
-                    console.log('✅ DELETE OK:', res.status, res.data);
+                    await instance.delete(`api/admin/users/${user.id}`);
                     setUsers(prev => prev.filter(u => u.id !== user.id));
                 } catch (e: any) {
-                    console.log('❌ DELETE ERROR status:', e?.response?.status);
-                    console.log('❌ DELETE ERROR data:', JSON.stringify(e?.response?.data));
-                    console.log('❌ DELETE ERROR url:', e?.config?.url);
-                    console.log('❌ DELETE ERROR message:', e?.message);
                     showError(t('admin.error'), e?.response?.data?.message ?? t('admin.unknownError'));
                 } finally {
                     setActionLoading(null);
@@ -273,7 +313,7 @@ const UsersTab = () => {
         setActionLoading(limitModal.user.id);
         try {
             await instance.post(`api/admin/users/${limitModal.user.id}/daily-limit`, null, {
-                params: { limit: limit ?? undefined }
+                params: { limit: limit ?? undefined },
             });
             setLimitModal(null);
             setSuccessModal({
@@ -293,116 +333,203 @@ const UsersTab = () => {
         return <View style={styles.center}><ActivityIndicator size="large" color={Colors.greenFirst} /></View>;
     }
 
+    const listData: AdminUser[] =
+        searchResult && searchResult !== 'not_found' ? [searchResult] : users;
+
+    // ── Render item ─────────────────────────────────────
+    const renderItem = ({ item }: { item: AdminUser }) => {
+        const online = isOnline(item.lastLogin);
+
+        return (
+            <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => router.push(`/admin/user/${item.id}`)}
+            >
+                <View style={[styles.userCard, item.banned && styles.userCardBanned]}>
+                    <View style={styles.userCardHeader}>
+
+                        {/* Аватар */}
+                        <View style={styles.avatarWrap}>
+                            <View style={[
+                                styles.userAvatar,
+                                { backgroundColor: item.banned ? T.roseMuted : T.slateMuted },
+                            ]}>
+                                <Text style={[
+                                    styles.userAvatarText,
+                                    { color: item.banned ? T.roseText : T.slate },
+                                ]}>
+                                    {item.fullName?.charAt(0)?.toUpperCase() || '?'}
+                                </Text>
+                            </View>
+                            {/* ── 1.5 Точка онлайн/офлайн ── */}
+                            <View style={[
+                                styles.onlineDot,
+                                { backgroundColor: online ? T.online : T.offline },
+                            ]} />
+                        </View>
+
+                        {/* Имя + мета */}
+                        <View style={{ flex: 1, marginLeft: 12 }}>
+                            <Text style={styles.userName}>{item.fullName}</Text>
+                            <Text style={styles.userMeta}>
+                                @{item.login} · #{item.id}
+                            </Text>
+                            {/* ── 1.4 lastLogin ── */}
+                            <View style={styles.lastLoginRow}>
+                                <Text style={[
+                                    styles.lastLoginText,
+                                    { color: online ? T.sageText : T.offline }, // Текст красный если оффлайн
+                                ]}>
+                                    {online ? '● ' : '○ '}{fmtLastLogin(item.lastLogin)}
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* Роль */}
+                        <View style={[
+                            styles.rolePill,
+                            item.role === 'ADMIN' && styles.rolePillAdmin,
+                        ]}>
+                            <Text style={[
+                                styles.rolePillText,
+                                item.role === 'ADMIN' && styles.rolePillTextAdmin,
+                            ]}>
+                                {item.role}
+                            </Text>
+                        </View>
+                    </View>
+
+                    {item.banned && (
+                        <View style={styles.bannedStrip}>
+                            <Text style={styles.bannedStripText}>⚠ {t('admin.users.bannedLabel')}</Text>
+                        </View>
+                    )}
+
+                    <View style={styles.cardDivider} />
+
+                    {actionLoading === item.id ? (
+                        <View style={styles.actionLoadingBox}>
+                            <ActivityIndicator size="small" color={Colors.greenFirst} />
+                        </View>
+                    ) : (
+                        <View style={styles.userActions}>
+                            <TouchableOpacity
+                                style={[styles.actionChip, item.banned ? styles.chipGreen : styles.chipRose]}
+                                onPress={() => handleBan(item)}
+                                activeOpacity={0.75}
+                            >
+                                <Text style={[
+                                    styles.actionChipText,
+                                    { color: item.banned ? T.sageText : T.roseText },
+                                ]}>
+                                    {item.banned ? t('admin.users.unban') : t('admin.users.ban')}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.actionChip, styles.chipSlate]}
+                                onPress={() => handleSetRole(item)}
+                                activeOpacity={0.75}
+                            >
+                                <Text style={[styles.actionChipText, { color: T.slate }]}>
+                                    {item.role === 'ADMIN' ? '→ USER' : '→ ADMIN'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.actionChip, styles.chipAmber]}
+                                onPress={() => handleSetIndividualLimit(item)}
+                                activeOpacity={0.75}
+                            >
+                                <Text style={[styles.actionChipText, { color: T.amberText }]}>
+                                    {t('admin.users.limit')}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.actionChip, styles.chipRoseSoft]}
+                                onPress={() => handleDelete(item)}
+                                activeOpacity={0.75}
+                            >
+                                <Text style={[styles.actionChipText, { color: T.roseText }]}>
+                                    {t('admin.users.delete')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
+    };
+
     return (
         <View style={{ flex: 1 }}>
+            {/* Поиск по ID */}
+            <View style={srStyles.wrapper}>
+                <View style={srStyles.row}>
+                    <TextInput
+                        style={srStyles.input}
+                        value={searchId}
+                        onChangeText={v => {
+                            setSearchId(v.replace(/[^0-9]/g, ''));
+                            if (!v) setSearchResult(null);
+                        }}
+                        placeholder={t('admin.users.searchPlaceholder')}
+                        keyboardType="numeric"
+                        placeholderTextColor={T.textSoft}
+                        returnKeyType="search"
+                        onSubmitEditing={handleSearchById}
+                    />
+                    {searchId.length > 0 && (
+                        <TouchableOpacity onPress={handleClearSearch} style={srStyles.clearBtn}>
+                            <Text style={{ color: T.textSoft, fontSize: 16 }}>✕</Text>
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                        style={[
+                            srStyles.searchBtn,
+                            (!searchId.trim() || searchLoading) && { opacity: 0.5 },
+                        ]}
+                        onPress={handleSearchById}
+                        disabled={searchLoading || !searchId.trim()}
+                    >
+                        {searchLoading
+                            ? <ActivityIndicator size="small" color="white" />
+                            : <Text style={srStyles.searchBtnText}>{t('admin.search')}</Text>
+                        }
+                    </TouchableOpacity>
+                </View>
+
+                {searchResult === 'not_found' && (
+                    <View style={srStyles.notFound}>
+                        <Text style={{ color: T.roseText, fontWeight: '600', fontSize: 13 }}>
+                            {t('admin.users.notFound', { id: searchId })}
+                        </Text>
+                    </View>
+                )}
+
+                {searchResult && searchResult !== 'not_found' && (
+                    <View style={srStyles.resultBanner}>
+                        <Text style={{ color: T.sageText, fontSize: 12, fontWeight: '600', flex: 1 }}>
+                            ✓ {searchResult.fullName} · @{searchResult.login}
+                        </Text>
+                        <TouchableOpacity onPress={handleClearSearch}>
+                            <Text style={{ color: T.textSoft, fontSize: 12 }}>{t('admin.reset')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </View>
+
             <FlatList
-                data={users}
+                data={listData}
                 keyExtractor={(item) => item.id.toString()}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.greenFirst} />
+                    searchResult
+                        ? undefined
+                        : <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.greenFirst} />
                 }
                 contentContainerStyle={{ padding: 16, gap: 10 }}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        activeOpacity={0.85}
-                        onPress={() => router.push(`/admin/user/${item.id}`)}
-                    >
-                        <View style={[styles.userCard, item.banned && styles.userCardBanned]}>
-                            <View style={styles.userCardHeader}>
-                                <View style={[
-                                    styles.userAvatar,
-                                    { backgroundColor: item.banned ? T.roseMuted : T.slateMuted }
-                                ]}>
-                                    <Text style={[
-                                        styles.userAvatarText,
-                                        { color: item.banned ? T.roseText : T.slate }
-                                    ]}>
-                                        {item.fullName?.charAt(0)?.toUpperCase() || '?'}
-                                    </Text>
-                                </View>
-
-                                <View style={{ flex: 1, marginLeft: 12 }}>
-                                    <Text style={styles.userName}>{item.fullName}</Text>
-                                    <Text style={styles.userMeta}>@{item.login} · #{item.id}</Text>
-                                </View>
-
-                                <View style={[
-                                    styles.rolePill,
-                                    item.role === 'ADMIN' && styles.rolePillAdmin,
-                                ]}>
-                                    <Text style={[
-                                        styles.rolePillText,
-                                        item.role === 'ADMIN' && styles.rolePillTextAdmin,
-                                    ]}>
-                                        {item.role}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            {item.banned && (
-                                <View style={styles.bannedStrip}>
-                                    <Text style={styles.bannedStripText}>⚠ {t('admin.users.bannedLabel')}</Text>
-                                </View>
-                            )}
-
-                            <View style={styles.cardDivider} />
-
-                            {actionLoading === item.id ? (
-                                <View style={styles.actionLoadingBox}>
-                                    <ActivityIndicator size="small" color={Colors.greenFirst} />
-                                </View>
-                            ) : (
-                                <View style={styles.userActions}>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.actionChip,
-                                            item.banned ? styles.chipGreen : styles.chipRose,
-                                        ]}
-                                        onPress={() => handleBan(item)}
-                                        activeOpacity={0.75}
-                                    >
-                                        <Text style={[
-                                            styles.actionChipText,
-                                            { color: item.banned ? T.sageText : T.roseText },
-                                        ]}>
-                                            {item.banned ? t('admin.users.unban') : t('admin.users.ban')}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        style={[styles.actionChip, styles.chipSlate]}
-                                        onPress={() => handleSetRole(item)}
-                                        activeOpacity={0.75}
-                                    >
-                                        <Text style={[styles.actionChipText, { color: T.slate }]}>
-                                            {item.role === 'ADMIN' ? '→ USER' : '→ ADMIN'}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        style={[styles.actionChip, styles.chipAmber]}
-                                        onPress={() => handleSetIndividualLimit(item)}
-                                        activeOpacity={0.75}
-                                    >
-                                        <Text style={[styles.actionChipText, { color: T.amberText }]}>
-                                            {t('admin.users.limit')}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        style={[styles.actionChip, styles.chipRoseSoft]}
-                                        onPress={() => handleDelete(item)}
-                                        activeOpacity={0.75}
-                                    >
-                                        <Text style={[styles.actionChipText, { color: T.roseText }]}>
-                                            {t('admin.users.delete')}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </View>
-                    </TouchableOpacity>
-                )}
+                renderItem={renderItem}
                 ListEmptyComponent={
                     <View style={styles.center}>
                         <Text style={[textStyles.body16Light, { color: T.textSoft }]}>
@@ -412,17 +539,12 @@ const UsersTab = () => {
                 }
             />
 
-            {/* Модалка лимита */}
+            {/* Лимит модалка */}
             <Modal visible={limitModal !== null} transparent animationType="slide">
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1 }}
-                >
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalCard}>
-                            <Text style={styles.modalTitle}>
-                                {t('admin.users.individualLimit')}
-                            </Text>
+                            <Text style={styles.modalTitle}>{t('admin.users.individualLimit')}</Text>
                             <Text style={{ color: T.textSoft, marginBottom: 12 }}>
                                 {limitModal?.user.fullName}
                             </Text>
@@ -441,9 +563,7 @@ const UsersTab = () => {
                                     style={[styles.modalBtn, { backgroundColor: '#F2F2F7', flex: 1 }]}
                                     onPress={() => setLimitModal(null)}
                                 >
-                                    <Text style={{ color: Colors.text, fontWeight: '600' }}>
-                                        {t('admin.cancel')}
-                                    </Text>
+                                    <Text style={{ color: Colors.text, fontWeight: '600' }}>{t('admin.cancel')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[styles.modalBtn, { backgroundColor: Colors.greenFirst, flex: 1 }]}
@@ -452,9 +572,7 @@ const UsersTab = () => {
                                 >
                                     {actionLoading !== null
                                         ? <ActivityIndicator color="white" />
-                                        : <Text style={{ color: 'white', fontWeight: '600' }}>
-                                            {t('admin.users.assign')}
-                                          </Text>
+                                        : <Text style={{ color: 'white', fontWeight: '600' }}>{t('admin.users.assign')}</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -464,16 +582,8 @@ const UsersTab = () => {
             </Modal>
 
             <ErrorModal error={errorModal} onClose={hideError} okLabel="OK" />
-            <ConfirmModal
-                confirm={confirmModal}
-                onClose={() => setConfirmModal(null)}
-                cancelLabel={t('admin.cancel')}
-            />
-            <ErrorModal
-                error={successModal}
-                onClose={() => setSuccessModal(null)}
-                okLabel="OK"
-            />
+            <ConfirmModal confirm={confirmModal} onClose={() => setConfirmModal(null)} cancelLabel={t('admin.cancel')} />
+            <ErrorModal error={successModal} onClose={() => setSuccessModal(null)} okLabel="OK" />
         </View>
     );
 };
@@ -519,9 +629,7 @@ const LimitsTab = () => {
         }
         setSaving(true);
         try {
-            await instance.post('api/admin/settings/daily-limit', null, {
-                params: { limit: effectiveLimit }
-            });
+            await instance.post('api/admin/settings/daily-limit', null, { params: { limit: effectiveLimit } });
             setGlobalLimit(effectiveLimit);
             setSuccessModal({
                 title: t('admin.done'),
@@ -603,13 +711,8 @@ const LimitsTab = () => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-
             <ErrorModal error={errorModal} onClose={hideError} okLabel="OK" />
-            <ErrorModal
-                error={successModal}
-                onClose={() => setSuccessModal(null)}
-                okLabel="OK"
-            />
+            <ErrorModal error={successModal} onClose={() => setSuccessModal(null)} okLabel="OK" />
         </>
     );
 };
@@ -641,81 +744,103 @@ const AdminPanel = () => {
             >
                 <Tab.Screen name="Users" component={UsersTab} options={{ tabBarLabel: t('admin.tabs.users') }} />
                 <Tab.Screen name="Feedbacks" component={AdminFeedbackScreen} options={{ tabBarLabel: t('admin.tabs.feedbacks') }} />
+                <Tab.Screen name="Statistics" component={AdminStatisticsScreen} options={{ tabBarLabel: t('admin.tabs.statistics') }} />
                 <Tab.Screen name="Limits" component={LimitsTab} options={{ tabBarLabel: t('admin.tabs.limits') }} />
             </Tab.Navigator>
         </View>
     );
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-
-    header: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
+// ─── Стили поиска ─────────────────────────────────────────────────────────────
+const srStyles = StyleSheet.create({
+    wrapper: {
+        paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8,
         backgroundColor: 'white',
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: '#E5E5EA',
+        borderBottomColor: T.slateMuted,
     },
-    backBtn: { width: 40, height: 40, justifyContent: 'center' },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    input: {
+        flex: 1, height: 42,
+        borderWidth: 1, borderColor: T.slateMuted, borderRadius: 10,
+        paddingHorizontal: 12, fontSize: 14,
+        color: T.text, fontFamily: 'futuraPTLight', backgroundColor: T.bg,
+    },
+    clearBtn: { padding: 6 },
+    searchBtn: {
+        backgroundColor: Colors.greenFirst, borderRadius: 10,
+        paddingHorizontal: 16, height: 42,
+        justifyContent: 'center', alignItems: 'center',
+    },
+    searchBtnText: { color: 'white', fontWeight: '700', fontSize: 13 },
+    notFound: {
+        marginTop: 8, padding: 10,
+        backgroundColor: T.roseLight, borderRadius: 8,
+        borderWidth: 1, borderColor: T.roseBorder,
+    },
+    resultBanner: {
+        marginTop: 8, padding: 10,
+        backgroundColor: T.sageLight, borderRadius: 8,
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        borderWidth: 1, borderColor: T.sageMuted,
+    },
+});
+
+// ─── Основные стили ───────────────────────────────────────────────────────────
+const styles = StyleSheet.create({
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    header: { backgroundColor: 'white' },
     adminBadge: {
-        backgroundColor: '#FF3B30',
-        borderRadius: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        backgroundColor: Colors.text ?? '#1a1a1a',
+        paddingHorizontal: 12, paddingVertical: 6,
+        alignSelf: 'center', marginVertical: 10, borderRadius: 8,
     },
     adminBadgeText: { color: 'white', fontSize: 11, fontWeight: '700', letterSpacing: 1 },
 
     userCard: {
-        backgroundColor: T.surface,
-        borderRadius: 18,
-        paddingHorizontal: 14,
-        paddingVertical: 14,
-        shadowColor: '#94A3B8',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
-        elevation: 2,
-        borderWidth: 1,
-        borderColor: T.slateMuted,
+        backgroundColor: T.surface, borderRadius: 18,
+        paddingHorizontal: 14, paddingVertical: 14,
+        shadowColor: '#94A3B8', shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12, shadowRadius: 8, elevation: 2,
+        borderWidth: 1, borderColor: T.slateMuted,
     },
-    userCardBanned: {
-        backgroundColor: T.roseLight,
-        borderColor: T.roseBorder,
-    },
-    userCardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+    userCardBanned: { backgroundColor: T.roseLight, borderColor: T.roseBorder },
+    userCardHeader: { flexDirection: 'row', alignItems: 'center' },
+
+    // Аватар с точкой
+    avatarWrap: { position: 'relative' },
     userAvatar: {
         width: 40, height: 40, borderRadius: 12,
         justifyContent: 'center', alignItems: 'center',
     },
     userAvatarText: { fontSize: 16, fontWeight: '700' },
+    onlineDot: {
+        position: 'absolute',
+        bottom: -1, right: -1,
+        width: 11, height: 11,
+        borderRadius: 6,
+        borderWidth: 2,
+        borderColor: T.surface,
+    },
+
     userName: { fontSize: 15, fontWeight: '600', color: T.text, letterSpacing: -0.2 },
-    userMeta: { fontSize: 12, color: T.textSoft, marginTop: 2 },
+    userMeta: { fontSize: 12, color: T.textSoft, marginTop: 1 },
+
+    lastLoginRow: { marginTop: 3 },
+    lastLoginText: { fontSize: 11, fontFamily: 'futuraPTLight' },
 
     rolePill: {
-        backgroundColor: T.slateLight,
-        borderRadius: 20,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderWidth: 1,
-        borderColor: T.slateMuted,
+        backgroundColor: T.slateLight, borderRadius: 20,
+        paddingHorizontal: 10, paddingVertical: 4,
+        borderWidth: 1, borderColor: T.slateMuted,
     },
     rolePillAdmin: { backgroundColor: '#FFF7ED', borderColor: T.amberMuted },
     rolePillText: { fontSize: 10, fontWeight: '700', color: T.slate, letterSpacing: 0.5 },
     rolePillTextAdmin: { color: T.amberText },
 
     bannedStrip: {
-        marginTop: 10,
-        backgroundColor: T.roseMuted,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        alignSelf: 'flex-start',
+        marginTop: 10, backgroundColor: T.roseMuted, borderRadius: 8,
+        paddingHorizontal: 10, paddingVertical: 5, alignSelf: 'flex-start',
     },
     bannedStripText: { fontSize: 11, fontWeight: '700', color: T.roseText },
 
@@ -734,9 +859,7 @@ const styles = StyleSheet.create({
     chipSlate: { backgroundColor: T.slateLight, borderWidth: 1, borderColor: T.slateMuted },
     chipAmber: { backgroundColor: T.amberLight, borderWidth: 1, borderColor: T.amberMuted },
 
-    modalOverlay: {
-        flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end',
-    },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
     modalCard: {
         backgroundColor: 'white', borderRadius: 20,
         padding: 20, margin: 16, marginBottom: 32,
