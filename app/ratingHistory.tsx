@@ -73,10 +73,11 @@ const Page = () => {
 
                 {/* Кнопка зафиксирована внизу, никуда не уходит */}
                 <Button
-                    style={[buttonStyles.activeFilledButton, styles.fixedButton]}
-                    onPress={() => router.push('/rateAccess' as any)}
-                >
-                    <ButtonText style={[textStyles.body16Light, { color: Colors.white }]}>
+    style={[buttonStyles.activeFilledButton, styles.fixedButton]}
+    onPress={() => router.push('/rateAccess' as any)}
+    disabled={true}
+>
+                    <ButtonText style={[buttonStyles.activeFilledButton, styles.fixedButton, { opacity: 0.5 }]}>
                         {t('ratingHistory.openAccess')}
                     </ButtonText>
                 </Button>

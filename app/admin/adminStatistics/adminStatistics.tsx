@@ -56,11 +56,10 @@ const T = {
     slateLight: '#F8FAFC',
 };
 
-// ─── Утилита форматирования даты dd.mm ───────────────────────────────────────
 const fmtDay = (dateStr: string): string => {
     try {
         const [, month, day] = dateStr.split('-');
-        return `${day}.${month}`;
+        return `${day}.${month}`;  // → "29.05"
     } catch {
         return dateStr;
     }
@@ -122,7 +121,10 @@ const BarChart = ({
     valueKey: string;
     maxBars?: number;
 }) => {
-    const sliced = data.slice(-maxBars);
+    const sliced = data.slice(-maxBars).map(item => ({
+    ...item,
+    [labelKey]: labelKey === 'date' ? fmtDay(item[labelKey]) : item[labelKey],
+}));
     const max    = Math.max(...sliced.map(d => d[valueKey]), 1);
 
     return (
@@ -161,7 +163,7 @@ const bcStyles = StyleSheet.create({
         gap: 8,
     },
     label: {
-        width: 44,
+        width: 36,
         fontSize: 11,
         color: T.textSoft,
         fontFamily: 'futuraPTLight',
@@ -312,12 +314,6 @@ export default function AdminStatisticsScreen() {
                         value={stats.onlineNow}
                         accent={T.purpleText}
                         bg={T.purpleLight}
-                    />
-                    <MetricCard
-                        label={t('admin.stats.mentors')}
-                        value={stats.mentors}
-                        accent={T.amberText}
-                        bg={T.amberLight}
                     />
                     <MetricCard
                         label={t('admin.stats.bannedUsers')}

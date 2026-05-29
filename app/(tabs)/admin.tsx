@@ -68,21 +68,22 @@ const isOnline = (lastLogin?: string | null): boolean => {
     return diff < 5 * 60 * 1000;
 };
 
-// ─── Утилита: форматирование lastLogin ───────────────────────────────────────
 const fmtLastLogin = (lastLogin?: string | null): string => {
     if (!lastLogin) return '—';
     try {
         const date = new Date(lastLogin);
-        const now  = new Date();
-        const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+        if (isNaN(date.getTime())) return '—';
 
-        if (diff < 60)          return `${diff}с назад`;
-        if (diff < 3600)        return `${Math.floor(diff / 60)}м назад`;
-        if (diff < 86400)       return `${Math.floor(diff / 3600)}ч назад`;
-        if (diff < 86400 * 7)   return `${Math.floor(diff / 86400)}д назад`;
+        const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+
+        if (diff < 60)        return `${diff} сек назад`;
+        if (diff < 3600)      return `${Math.floor(diff / 60)} мин назад`;
+        if (diff < 86400)     return `${Math.floor(diff / 3600)} ч назад`;
+        if (diff < 86400 * 2) return 'вчера';
+        if (diff < 86400 * 7) return `${Math.floor(diff / 86400)} дн назад`;
 
         return date.toLocaleDateString('ru-RU', {
-            day: '2-digit', month: '2-digit', year: '2-digit',
+            day: 'numeric', month: 'short', year: 'numeric',
         });
     } catch {
         return '—';

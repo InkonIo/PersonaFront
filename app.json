@@ -42,28 +42,34 @@
         "backgroundColor": "#ffffff"
       },
       "intentFilters": [
-    {
-        "action": "VIEW",
-        "autoVerify": true,
-        "data": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
             {
-                "scheme": "https",
-                "host": "personabest.com",
-                "pathPrefix": "/user"
+              "scheme": "https",
+              "host": "personabest.com",
+              "pathPrefix": "/user"
             }
-        ],
-        "category": ["BROWSABLE", "DEFAULT"]
-    },
-    {
-        "action": "VIEW",
-        "data": [
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        },
+        {
+          "action": "VIEW",
+          "data": [
             {
-                "scheme": "persona"
+              "scheme": "persona"
             }
-        ],
-        "category": ["BROWSABLE", "DEFAULT"]
-    }
-],
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.USE_BIOMETRIC",
@@ -100,9 +106,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "ae3844b6-142d-4d04-a2e3-78626a063d2a"
+        "projectId": "4410c20c-afee-4e76-9e7d-a294cc90f32d"
       }
     },
-    "owner": "inkssss"
+    "owner": "inkiss"
   }
 }

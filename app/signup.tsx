@@ -452,16 +452,19 @@ const confirmIOSDate = () => {
     const height = useHeaderHeight()
 
     const openCitiesPicker = () => {
-        if (!formData.country?.name) {
-            Alert.alert(
-                t('signup.countryRequired'),
-                t('signup.countryRequiredMsg'),
-                [{text: 'OK', onPress: () => console.log("123")}]
-            );
-            return
-        }
-        navigation.dispatch(StackActions.push("citiesOrRegions", { fromWhere: isEditMode ? "EDIT" : "REGISTRATION" }))
+    if (!formData.country?.name) {
+        Alert.alert(
+            t('signup.countryRequired'),
+            t('signup.countryRequiredMsg'),
+            [{text: 'OK', onPress: () => console.log("123")}]
+        );
+        return
     }
+    navigation.dispatch(StackActions.push("citiesOrRegions", { 
+        fromWhere: isEditMode ? "EDIT" : "REGISTRATION",
+        countryId: formData.country?.id   // ← добавил это
+    }))
+}
 
     const openProfessionsPicker = () => {
         navigation.dispatch(StackActions.push("professions", { fromWhere: "REGISTRATION" }))

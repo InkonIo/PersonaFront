@@ -11,6 +11,7 @@ import {
     getLocalizedName,
     selectSortedRegions,
     selectSortedCities,
+    getCityByCountry,
 } from "@/store/slices/dictionarySlice";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { updateFormData } from "@/store/slices/usersSlice";
@@ -28,6 +29,7 @@ type RootStackParamList = {
         showCheckbox?: boolean;
         fromWhere?: "REGISTRATION" | "SEARCH" | "EDIT";
         regionId?: number | null;
+        countryId?: number | null;
     };
 };
 
@@ -46,7 +48,7 @@ const CityList = () => {
     const { formData } = useAppSelector(state => state.user);
     const { searchFields } = useAppSelector(state => state.home);
     const { t } = useTranslation();
-    const { showCheckbox = false, fromWhere = "SEARCH", regionId = null } = route.params || {};
+    const { showCheckbox = false, fromWhere = "SEARCH", regionId = null, countryId = null } = route.params || {};
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     const lang = i18n.language;
@@ -215,6 +217,18 @@ const CityList = () => {
             }
         }
     };
+
+    useEffect(() => {
+    if (!showCheckbox && countryId && sortedRegions.length === 0) {
+        dispatch(getCityByCountry(countryId));
+    }
+}, []);
+
+// Добавь временно прямо перед return:
+console.log('sortedRegions:', sortedRegions);
+console.log('route.params:', route.params);
+console.log('lang:', lang);
+console.log('filteredItems:', filteredItems);
 
     return (
         <View style={styles.container}>
