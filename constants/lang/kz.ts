@@ -438,6 +438,7 @@ export const kz =
         "confirmMsg": "Сенімдісіз бе?",
         "confirm": "Иә",
         "searchPlaceholder": "Пайдаланушы ID бойынша іздеу...",
+        "notFound": "ID {{id}} пайдаланушысы табылмады"
     },
     "feedbacks": {
         "loadError": "Хабарларды жүктеу мүмкін болмады",

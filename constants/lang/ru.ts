@@ -429,6 +429,7 @@ export const ru = {
         "confirmMsg": "Вы уверены?",
         "confirm": "Да",
         "searchPlaceholder": "Найти по ID",
+        "notFound": "Пользователь с ID {{id}} не найден",
     },
     "feedbacks": {
         "loadError": "Не удалось загрузить сообщения",

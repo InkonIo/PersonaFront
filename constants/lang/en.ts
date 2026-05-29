@@ -427,7 +427,8 @@ export const en =
         "confirmDelete": "Delete",
         "confirmMsg": "Are you sure?",
         "confirm": "Yes",
-        "searchPlaceholder": "Search by ID"
+        "searchPlaceholder": "Search by ID",
+        "notFound": "No user found with ID {{id}}"
     },
     "feedbacks": {
         "loadError": "Failed to load messages",
