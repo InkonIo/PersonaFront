@@ -74,8 +74,8 @@ const CityList = () => {
                 setSelectedCities(new Set());
             }
         } else {
-            // REGISTRATION и EDIT — старая логика через Redux
-            const sourceCity = fromWhere === "REGISTRATION" ? formData?.city : searchFields?.city;
+            // REGISTRATION и EDIT — берём из formData (не из searchFields!)
+            const sourceCity = formData?.city;
             if (sourceCity?.id) {
                 dispatch(setSelectedCity(sourceCity.id));
             } else {
@@ -218,17 +218,14 @@ const CityList = () => {
         }
     };
 
+    // ФИX: убрана проверка sortedRegions.length === 0
+    // Теперь всегда загружаем регионы для нужной страны,
+    // чтобы не показывались регионы от предыдущего поиска
     useEffect(() => {
-    if (!showCheckbox && countryId && sortedRegions.length === 0) {
-        dispatch(getCityByCountry(countryId));
-    }
-}, []);
-
-// Добавь временно прямо перед return:
-console.log('sortedRegions:', sortedRegions);
-console.log('route.params:', route.params);
-console.log('lang:', lang);
-console.log('filteredItems:', filteredItems);
+        if (!showCheckbox && countryId) {
+            dispatch(getCityByCountry(countryId));
+        }
+    }, []);
 
     return (
         <View style={styles.container}>

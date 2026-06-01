@@ -129,7 +129,7 @@ const dictionarySlice = createSlice({
             })
             .addCase(getAllDictionaryData.rejected, (state) => { state.loading = false; })
 
-            .addCase(getCityByCountry.pending, (state) => { state.loading = true; })
+            .addCase(getCityByCountry.pending, (state) => { state.loading = true; state.regions = []; })
             .addCase(getCityByCountry.fulfilled, (state, { payload }) => {
                 state.regions = payload as any[];
                 state.cities = [];
