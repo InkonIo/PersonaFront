@@ -31,7 +31,7 @@
       },
       "bundleIdentifier": "com.romish.persona",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "145",
+      "buildNumber": "147",
       "associatedDomains": [
         "applinks:personabest.com"
       ]

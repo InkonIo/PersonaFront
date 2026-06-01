@@ -53,7 +53,7 @@ export const ru = {
     "visibilityAlert": "Видимость анкеты",
     "editProfile": "Редактировать анкету",
     "about": "О приложении",
-    "feedback": "Оставить обратную связь",
+    "feedback": "Обратная связь",
     "logout": "Выйти",
     "region": "Регион",
     "language": "Язык",
