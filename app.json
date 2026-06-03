@@ -4,7 +4,7 @@
     "slug": "persona",
     "version": "7.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "persona",
     "userInterfaceStyle": "automatic",
     "androidStatusBar": {
@@ -20,7 +20,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "NSFaceIDUsageDescription": "Allow $(PRODUCT_NAME) to use Face ID.",
         "ITSAppUsesNonExemptEncryption": false,
@@ -31,16 +31,16 @@
       },
       "bundleIdentifier": "com.romish.persona",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "147",
+      "buildNumber": "150",
       "associatedDomains": [
         "applinks:personabest.com"
       ]
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
+    "foregroundImage": "./assets/images/logo.png",
+    "backgroundColor": "#ffffff"
+  },
       "intentFilters": [
         {
           "action": "VIEW",

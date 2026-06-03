@@ -398,17 +398,25 @@ const Page = () => {
                         </View>
                     </ModalBody>
                     <ModalFooter>
-                        <Button style={[buttonStyles.activeTextButton]} onPress={handleCloseRateModal}>
-                            <ButtonText>{t('common.cancel')}</ButtonText>
-                        </Button>
-                        <Button
-                            style={[buttonStyles.activeFilledButton]}
-                            onPress={sendRatingToBackend}
-                            isDisabled={starRating === 0}
-                        >
-                            <ButtonText>{t('common.save')}</ButtonText>
-                        </Button>
-                    </ModalFooter>
+    <Button 
+        // Добавляем marginRight: 16 для отступа
+        style={[buttonStyles.activeTextButton, { marginRight: 16 }]} 
+        onPress={handleCloseRateModal}
+    >
+        {/* Добавляем цвет текста, чтобы он не был белым */}
+        <ButtonText style={{ color: Colors.grayDark }}>
+            {t('common.cancel')}
+        </ButtonText>
+    </Button>
+    
+    <Button
+        style={[buttonStyles.activeFilledButton]}
+        onPress={sendRatingToBackend}
+        isDisabled={starRating === 0}
+    >
+        <ButtonText>{t('common.save')}</ButtonText>
+    </Button>
+</ModalFooter>
                 </ModalContent>
             </Modal>
 
