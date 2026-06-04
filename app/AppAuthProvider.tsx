@@ -53,18 +53,23 @@ export const AppAuthProvider = ({ children }: { children: React.ReactNode }) => 
         }
     }, [isInitialized, isAuthenticated]);
 
-    // Следим за разлогином
-    useEffect(() => {
-        if (!isInitialized) return;
-        if (isAuthenticated) {
-            wasAuthenticated.current = true;
-            return;
+    // Убери wasAuthenticated совсем, сделай проще:
+useEffect(() => {
+    if (!isInitialized) return;
+    
+    if (isAuthenticated) {
+        if (!didInitialRedirect.current) {
+            didInitialRedirect.current = true;
+            const savedUrl = getPendingDeepLink();
+            const deepLinkPath = savedUrl ? resolveDeepLinkPath(savedUrl) : null;
+            router.replace(deepLinkPath as any ?? '/(tabs)/home');
         }
-        if (!isAuthenticated && wasAuthenticated.current) {
-            wasAuthenticated.current = false;
-            router.replace('/');
-        }
-    }, [isAuthenticated, isInitialized]);
+    } else {
+        // Сбрасываем флаг чтобы после повторного логина снова редиректнуло
+        didInitialRedirect.current = false;
+        router.replace('/');
+    }
+}, [isAuthenticated, isInitialized]);
 
     
 

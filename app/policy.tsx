@@ -22,6 +22,9 @@ import {useTranslation} from "react-i18next";
 import {TouchableOpacity} from "react-native";
 import ErrorModal from '@/components/ErrorModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useWebSocket } from '@/app/WebSocketContext';
+import { setAuth } from '@/store/slices/authSlice';
 
 const Page = () => {
     const {t} = useTranslation();
@@ -31,6 +34,7 @@ const Page = () => {
     const router = useRouter()
     const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
     const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+    const { connectWebSocket } = useWebSocket();
 
     const handleScroll = (event: any) => {
         const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
@@ -38,32 +42,35 @@ const Page = () => {
         if (isEnd && !isScrolledToEnd) setIsScrolledToEnd(true);
     };
 
-    const createUser = async () => {
-        const user = userMapper(formData, imageUrlForBackend);
+    // замени createUser целиком
+const createUser = async () => {
+    const user = userMapper(formData, imageUrlForBackend);
+    try {
+        const resultAction = await dispatch(createNewUser(user));
+        const userData = unwrapResult(resultAction);
 
-        try {
-            const resultAction = await dispatch(createNewUser(user));
-            const userData = unwrapResult(resultAction);
+        if (userData) {
+            const { login, password } = user;
+            const loginResultAction = await dispatch(loginUser({ login, password }));
+            const credentials = unwrapResult(loginResultAction);
 
-            if (userData) {
-                const { login, password } = user;
-                const loginResultAction = await dispatch(loginUser({ login, password }));
-                const credentials = unwrapResult(loginResultAction);
+            if (credentials) {
+                const userInfoResultAction = await dispatch(getUserInfo());
+                const userInfoData = unwrapResult(userInfoResultAction);
 
-                if (credentials) {
-                    const userInfoResultAction = await dispatch(getUserInfo());
-                    const userInfoData = unwrapResult(userInfoResultAction);
-
-                    if (userInfoData) {
-                        router.push("/(tabs)/home");
-                    }
+                if (userInfoData) {
+                    await AsyncStorage.removeItem('userInitiatedLogout');
+                    connectWebSocket(userInfoData.id);
+                    dispatch(setAuth(true));
+                    // router.push убираем — AppAuthProvider сам редиректнет
                 }
             }
-        }  catch (err: any) {
-            const errorMessage = err?.message || err?.error || t('common.errorMessage');
-            setErrorModal({ visible: true, message: errorMessage });
         }
-    };
+    } catch (err: any) {
+        const errorMessage = err?.message || err?.error || t('common.errorMessage');
+        setErrorModal({ visible: true, message: errorMessage });
+    }
+};
 
     const insets = useSafeAreaInsets();
     const [errorModal, setErrorModal] = useState<{ visible: boolean; message: string; title?: string } | null>(null);
