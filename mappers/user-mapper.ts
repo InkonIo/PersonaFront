@@ -2,14 +2,14 @@ export const userMapper = (user: any, imageUrl: string) => {
     return {
         login: user.login,
         fullName: user.fullName,
-        dateOfBirth: user.dateOfBirth,
+        dateOfBirth: user.dateOfBirth || undefined,
         password: user.password,
-        city: user.city.id,
-        fieldOfWork: user.fieldOfWork.id,
-        professions: user.professions.length ? user.professions.map((profession: any) => profession.id) : [],
+        city: user.city?.id || undefined,
+        fieldOfWork: user.fieldOfWork?.id ?? null,
+        professions: user.professions?.length ? user.professions.map((profession: any) => profession.id) : [],
         email: user?.email,
         linksToSocial: user?.linksToSocial,
-        maritalStatus: user?.maritalStatus?.id,
+        maritalStatus: user?.maritalStatus?.id || undefined,
         educationAndCourses: user?.educationAndCourses,
         experienceAndSkills: user?.experienceAndSkills,
         salary: {
@@ -18,7 +18,7 @@ export const userMapper = (user: any, imageUrl: string) => {
         },
         dreamWork: user?.dreamWork,
         hobby: user?.hobby,
-        status: user?.status?.id ?? null,  // ← ДОБАВИТЬ
+        status: user?.status?.id ?? null,
         imageUrl
     }
 }

@@ -62,13 +62,26 @@ const createUser = async () => {
                     await AsyncStorage.removeItem('userInitiatedLogout');
                     connectWebSocket(userInfoData.id);
                     dispatch(setAuth(true));
-                    // router.push убираем — AppAuthProvider сам редиректнет
                 }
             }
         }
     } catch (err: any) {
-        const errorMessage = err?.message || err?.error || t('common.errorMessage');
-        setErrorModal({ visible: true, message: errorMessage });
+
+    console.log('🔴 createUser error FULL:', JSON.stringify(err, null, 2));
+    console.log('🔴 err.message:', err?.message);
+    console.log('🔴 err.error:', err?.error);
+    console.log('🔴 err.status:', err?.status);
+        const errorMessage = err?.message || err?.error || '';
+        
+        // Игнорируем ошибки валидации города/страны — бэк уже не требует
+        const ignoredErrors = ['город не указан', 'city', 'country', 'страна'];
+        const isIgnored = ignoredErrors.some(e => 
+            errorMessage.toLowerCase().includes(e.toLowerCase())
+        );
+        
+        if (!isIgnored) {
+            setErrorModal({ visible: true, message: errorMessage || t('common.errorMessage') });
+        }
     }
 };
 

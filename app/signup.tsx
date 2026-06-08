@@ -368,9 +368,6 @@ const confirmIOSDate = () => {
     const isInvalid = (
         !formData.login
         || !formData.fullName
-        || !formData.dateOfBirth
-        || !formData.country?.name
-        || !formData.city?.name
         || !formData.fieldOfWork?.name
         || !formData.email
         || !isValidEmail(formData.email)
@@ -421,10 +418,7 @@ const confirmIOSDate = () => {
         const isInvalid = (
             !formData.login
             || !formData.fullName
-            || !formData.dateOfBirth
             || !formData.password
-            || !formData.country?.name
-            || !formData.city?.name
             || !formData.fieldOfWork?.name
             || !formData.email
             || !isValidEmail(formData.email)
@@ -591,103 +585,91 @@ const confirmIOSDate = () => {
 
                                     {/* ─── Дата рождения ─── */}
                                     <VStack space="xs">
-                                        <FormControl isRequired={true} isInvalid={!formData.dateOfBirth && isFormSubmitted}>
-                                            <FormControlLabel>
-                                                <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
-                                                    {t('signup.dateOfBirth')}
-                                                </FormControlLabelText>
-                                            </FormControlLabel>
-                                            {showPicker && (
-                                                <DateTimePicker
-                                                    mode="date"
-                                                    display="spinner"
-                                                    value={date}
-                                                    onChange={onChange}
-                                                    style={styles.datePicker}
-                                                    themeVariant="light"
-                                                    locale={i18n.language === 'en' ? 'en-US' : i18n.language === 'kz' ? 'kk-KZ' : 'ru-RU'}
-                                                    is24Hour={false}
-                                                    maximumDate={MAX_DATE}
-                                                    minimumDate={MIN_DATE}
-                                                />
-                                            )}
-                                            {showPicker && Platform.OS === "ios" && (
-                                                <View style={{flexDirection: "row", justifyContent: "space-around"}}>
-                                                    <TouchableOpacity onPress={toggleDatePicker}>
-                                                        <Text>{t('signup.cancel')}</Text>
-                                                    </TouchableOpacity>
-                                                    <TouchableOpacity onPress={confirmIOSDate}>
-                                                        <Text>{t('signup.done')}</Text>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            )}
-                                            {!showPicker && (
-                                                <Pressable onPress={toggleDatePicker}>
-                                                    <Input variant="rounded" size="md" borderWidth={1} borderColor={Colors.grayDark} isRequired={true}>
-                                                        <InputField
-                                                            placeholder={t('signup.selectDate')}
-                                                            editable={false}
-                                                            value={formData.dateOfBirth}
-                                                            onPressIn={toggleDatePicker}
-                                                        />
-                                                    </Input>
-                                                    <FormControlError>
-                                                        <FormControlErrorIcon as={AlertCircleIcon}/>
-                                                        <FormControlErrorText>{t('signup.dateRequired')}</FormControlErrorText>
-                                                    </FormControlError>
-                                                </Pressable>
-                                            )}
-                                        </FormControl>
+                                        <FormControl isRequired={false} isInvalid={false}>
+    <FormControlLabel>
+        <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
+            {t('signup.dateOfBirth')}
+        </FormControlLabelText>
+    </FormControlLabel>
+    {showPicker && (
+        <DateTimePicker
+            mode="date"
+            display="spinner"
+            value={date}
+            onChange={onChange}
+            style={styles.datePicker}
+            themeVariant="light"
+            locale={i18n.language === 'en' ? 'en-US' : i18n.language === 'kz' ? 'kk-KZ' : 'ru-RU'}
+            is24Hour={false}
+            maximumDate={MAX_DATE}
+            minimumDate={MIN_DATE}
+        />
+    )}
+    {showPicker && Platform.OS === "ios" && (
+        <View style={{flexDirection: "row", justifyContent: "space-around"}}>
+            <TouchableOpacity onPress={toggleDatePicker}>
+                <Text>{t('signup.cancel')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={confirmIOSDate}>
+                <Text>{t('signup.done')}</Text>
+            </TouchableOpacity>
+        </View>
+    )}
+    {!showPicker && (
+        <Pressable onPress={toggleDatePicker}>
+            <Input variant="rounded" size="md" borderWidth={1} borderColor={Colors.grayDark}>
+                <InputField
+                    placeholder={t('signup.selectDate')}
+                    editable={false}
+                    value={formData.dateOfBirth}
+                    onPressIn={toggleDatePicker}
+                />
+            </Input>
+        </Pressable>
+    )}
+</FormControl>
                                     </VStack>
 
                                     {/* ─── Страна ─── */}
-                                    <VStack space="xs">
-                                        <FormControl isRequired={true} isInvalid={!formData.country?.name && isFormSubmitted}>
-                                            <FormControlLabel>
-                                                <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
-                                                    {t('signup.country')}
-                                                </FormControlLabelText>
-                                            </FormControlLabel>
-                                            <CountryPickerModal
-    countries={countries}
-    selectedCountry={formData.country}
-    lang={lang}
-    onSelect={(id: string) => onChangeSelect("country", id)}
-    onClear={() => { handleChange("country", null); handleChange("city", null); }}
-/>
-                                            <FormControlError>
-                                                <FormControlErrorIcon as={AlertCircleIcon}/>
-                                                <FormControlErrorText>{t('signup.countryError')}</FormControlErrorText>
-                                            </FormControlError>
-                                        </FormControl>
-                                    </VStack>
+<VStack space="xs">
+    <FormControl isRequired={false} isInvalid={false}>
+        <FormControlLabel>
+            <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
+                {t('signup.country')}
+            </FormControlLabelText>
+        </FormControlLabel>
+        <CountryPickerModal
+            countries={countries}
+            selectedCountry={formData.country}
+            lang={lang}
+            onSelect={(id: string) => onChangeSelect("country", id)}
+            onClear={() => { handleChange("country", null); handleChange("city", null); }}
+        />
+    </FormControl>
+</VStack>
 
-                                    {/* ─── Город ─── */}
-                                    <VStack space="xs">
-                                        <FormControl isRequired={true} isInvalid={!formData.city?.name && isFormSubmitted}>
-                                            <FormControlLabel>
-                                                <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
-                                                    {t('signup.city')}
-                                                </FormControlLabelText>
-                                            </FormControlLabel>
-                                            <Select selectedValue={!isEditMode && formData.city === null && formData.allRegions ? t('common.allRegions') : getLocalizedName(formData.city)} onOpen={openCitiesPicker}>
-                                                <SelectTrigger variant="rounded" size="md">
-                                                    <SelectInput placeholder={t('signup.selectFromList')}/>
-                                                    {formData.city ? (
-    <TouchableOpacity onPress={() => handleChange("city", null)} style={{ paddingRight: 12 }}>
-        <InputIcon as={XIcon} />
-    </TouchableOpacity>
-) : (
-    <SelectIcon as={ChevronDownIcon} mr="$3"/>
-)}
-                                                </SelectTrigger>
-                                            </Select>
-                                            <FormControlError>
-                                                <FormControlErrorIcon as={AlertCircleIcon}/>
-                                                <FormControlErrorText>{t('signup.cityError')}</FormControlErrorText>
-                                            </FormControlError>
-                                        </FormControl>
-                                    </VStack>
+{/* ─── Город ─── */}
+<VStack space="xs">
+    <FormControl isRequired={false} isInvalid={false}>
+        <FormControlLabel>
+            <FormControlLabelText style={textStyles.body12Light} color={Colors.grayDark}>
+                {t('signup.city')}
+            </FormControlLabelText>
+        </FormControlLabel>
+        <Select selectedValue={!isEditMode && formData.city === null && formData.allRegions ? t('common.allRegions') : getLocalizedName(formData.city)} onOpen={openCitiesPicker}>
+            <SelectTrigger variant="rounded" size="md">
+                <SelectInput placeholder={t('signup.selectFromList')}/>
+                {formData.city ? (
+                    <TouchableOpacity onPress={() => handleChange("city", null)} style={{ paddingRight: 12 }}>
+                        <InputIcon as={XIcon} />
+                    </TouchableOpacity>
+                ) : (
+                    <SelectIcon as={ChevronDownIcon} mr="$3"/>
+                )}
+            </SelectTrigger>
+        </Select>
+    </FormControl>
+</VStack>
 
                                     {/* ─── Сфера деятельности ─── */}
                                     <VStack space="xs">
