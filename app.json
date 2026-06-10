@@ -20,7 +20,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "infoPlist": {
         "NSFaceIDUsageDescription": "Allow $(PRODUCT_NAME) to use Face ID.",
         "ITSAppUsesNonExemptEncryption": false,
@@ -31,7 +31,7 @@
       },
       "bundleIdentifier": "com.romish.persona",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "151",
+      "buildNumber": "153",
       "associatedDomains": [
         "applinks:personabest.com"
       ]
