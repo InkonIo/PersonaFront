@@ -2,7 +2,7 @@
 /LICENSE
 /_node-version
 .idea
-
+/node_modules 14.36.01
 
 
 # @generated expo-cli sync-8d4afeec25ea8a192358fae2f8e2fc766bdce4ec
