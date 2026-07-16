@@ -2,7 +2,7 @@
   "expo": {
     "name": "persona",
     "slug": "persona",
-    "version": "7.0.0",
+    "version": "7.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "persona",
@@ -26,7 +26,7 @@
       },
       "bundleIdentifier": "com.romish.persona",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "buildNumber": "154",
+      "buildNumber": "155",
       "associatedDomains": [
         "applinks:personabest.com"
       ]
